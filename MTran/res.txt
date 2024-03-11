@@ -1,1 +1,172 @@
-Lexical error at token 42: reutrn
+tokens:
+
+k14  ==  #include
+l0  ==  "stdio.h"
+k9  ==  struct
+t7  ==  MyStruct
+b2o4  ==  {
+t0  ==  int
+v0  ==  f
+s0  ==  ;
+t6  ==  float
+v1  ==  l
+s0  ==  ;
+b2c4  ==  }
+s0  ==  ;
+t0  ==  int
+v2  ==  main
+b0o15  ==  (
+b0c15  ==  )
+b2o17  ==  {
+t0  ==  int
+v3  ==  a
+o15  ==  =
+l1  ==  5
+o4  ==  +
+l2  ==  4
+o4  ==  +
+l3  ==  6
+s0  ==  ;
+t0  ==  int
+v4  ==  g
+o15  ==  =
+v3  ==  a
+o0  ==  ++
+o4  ==  +
+l4  ==  5
+s0  ==  ;
+t6  ==  float
+v5  ==  pi
+o15  ==  =
+l5  ==  3.14
+s0  ==  ;
+t7  ==  MyStruct
+v6  ==  mstr
+s0  ==  ;
+t0  ==  int
+v7  ==  i
+o15  ==  =
+l6  ==  17
+s0  ==  ;
+v7  ==  i
+o4  ==  +
+o15  ==  =
+l7  ==  17
+s0  ==  ;
+k0  ==  for
+b0o54  ==  (
+t0  ==  int
+v7  ==  i
+o15  ==  =
+l8  ==  0
+s0  ==  ;
+v7  ==  i
+o7  ==  <
+l9  ==  89
+s0  ==  ;
+o0  ==  ++
+v7  ==  i
+b0c54  ==  )
+b2o67  ==  {
+t6  ==  float
+v9  ==  a
+o15  ==  =
+l10  ==  14.7
+s0  ==  ;
+t6  ==  float
+v10  ==  gp6
+o15  ==  =
+l11  ==  13.3
+s0  ==  ;
+b2c67  ==  }
+k3  ==  return
+l12  ==  0
+s0  ==  ;
+b2c17  ==  }
+
+-------------
+
+table of types(t):
+
+0 int
+1 char
+2 short
+3 long
+4 void
+5 double
+6 float
+7 MyStruct
+
+-------------
+
+table of vars(v):
+
+0 f int 4
+1 l float 4
+2 main int 0
+3 a int 17
+4 g int 17
+5 pi float 17
+6 mstr MyStruct 17
+7 i int 17
+8 i int 53
+9 a float 67
+10 gp6 float 67
+
+-------------
+
+table of keywords(k):
+
+0 for
+1 while
+2 do
+3 return
+4 const
+5 switch
+6 case
+7 if
+8 union
+9 struct
+10 signed
+11 unsigned
+12 default
+13 else
+14 #include
+
+-------------
+
+table of separators(s):
+
+0 ;
+1 ,
+2 :
+3 ?
+
+-------------
+
+table of brackets(b{id}[oc]{firstToken}):
+
+0 ()
+1 []
+2 {}
+
+-------------
+
+table of operators(o):
+
+0 ++
+1 --
+2 *
+3 /
+4 +
+5 ==
+6 -
+7 <
+8 >
+9 <=
+10 >=
+11 &&
+12 ||
+13 &=
+14 |=
+15 =

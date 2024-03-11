@@ -3,7 +3,7 @@ DECLARE
     random_seed INTEGER := to_number(to_char(systimestamp,'yyyymmdd'));
     res INTEGER := 0;
     
-    PROCEDURE Analyze IS
+    PROCEDURE Analyzee IS
         chet NUMBER := 0;
         nechet NUMBER := 0;
     BEGIN
@@ -86,9 +86,10 @@ BEGIN
     THEN
         DBMS_OUTPUT.put_line('There is some elements in table');
         
-        Analyze();
-        GenerateInsert(212);
+        Analyzee();
+        GenerateInsert(8);
     ELSE
+        DBMS_OUTPUT.put_line('hate hate hate hate');
         FOR i IN 1..10 LOOP
             res := dbms_random.value(0, 40000);
             INSERT INTO MyTable(val) VALUES (res);

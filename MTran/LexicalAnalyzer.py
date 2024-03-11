@@ -481,9 +481,29 @@ def analyze(text: str):
     file.close()
 
 
+def clearComments(text: str) -> str:
+    new_text = str()
+    i: int = 0
+    while i < len(text):
+        if text[i] == "/":
+            if text[i + 1] == "/":
+                while i < len(text) and text[i] != "\n":
+                    i += 1
+            elif text[i + 1] == "*":
+                while i < len(text) and text[i - 2] + text[i - 1] != "*/":
+                    i += 1
+        if i >= len(text):
+            continue
+        new_text += text[i]
+        i += 1
+    return new_text
+
+
 if __name__ == "__main__":
     # print("hui")
     file = open("test.c")
     text: str = file.read()
     file.close()
+    text = clearComments(text)
+    print(text)
     analyze(text)
