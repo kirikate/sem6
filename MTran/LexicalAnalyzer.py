@@ -1,18 +1,26 @@
 import re
 
 
-class VariableTableCell:
+class IStringable:
+    def toString(self, i: int):
+        pass
+
+
+class VariableTableCell(IStringable):
     def __init__(self, id: int, name: str, mytype, scopeStart: int):
         self.id = id
         self.name = name
         self.mytype = mytype
         self.scopeStart = scopeStart
 
+    def toString(self, i: int):
+        return f"v{self.id}"
+
 
 keywordIdCounter = 0
 
 
-class MyKeyword:
+class MyKeyword(IStringable):
     def __init__(self, word: str):
         global keywordIdCounter
 
@@ -21,12 +29,15 @@ class MyKeyword:
 
         keywordIdCounter += 1
 
+    def toString(self, i: int) -> str:
+        return f"k{self.id}"
+
 
 bracketsIdCounter = 0
 
 
-class MyBrackets:
-    def __init__(self, symbols: str):
+class MyBrackets(IStringable):
+    def __init__(self, symbols: str, prior: int):
         global bracketsIdCounter
 
         self.symbols = symbols
@@ -34,43 +45,78 @@ class MyBrackets:
         self.closeSymbol = symbols[1]
 
         self.id = bracketsIdCounter
+        self.prior = prior
+        self.openClose = dict()
 
         bracketsIdCounter += 1
+
+    def open(self, i: int):
+        self.openClose[i] = None
+
+    def close(self, i: int, end: int):
+        self.openClose[i] = end
+
+    def toString(self, i: int) -> str:
+        if i in self.openClose.keys():
+            return f"b{self.id}o{i}"
+        elif i in self.openClose.values():
+            for key, val in self.openClose.items():
+                if val == i:
+                    return f"b{self.id}c{key}"
+        raise Exception(f"wtf dude bracket token {i} is undefined")
 
 
 separatorsCountId = 0
 
 
-class MySeparator:
+class MySeparator(IStringable):
     def __init__(self, symbol: str):
         global separatorsCountId
         self.symbol = symbol
         self.id = separatorsCountId
         separatorsCountId += 1
 
+    def toString(self, i: int):
+        return f"s{self.id}"
+
 
 operatorsCountId = 0
 
 
-class MyOperator:
-    def __init__(self, symbol: str):
+# lambda на понять какое приоритет
+# определить на унарный и с каких сторон можно брать значения
+# direction : left, right, both
+# arg count: unar, binar, ternar
+class MyOperator(IStringable):
+    def __init__(
+        self, symbol: str, prior: int, argCount: str = "binar", direction: str = None
+    ):
         global operatorsCountId
 
         self.symbol = symbol
         self.id = operatorsCountId
+        self.prior = prior
 
+        self.argCount = argCount
+        self.direction = direction
         operatorsCountId += 1
+
+    def toString(self, i: int):
+        return f"o{self.id}"
 
 
 typeid: int = 0
 
 
-class MyType:
+class MyType(IStringable):
     def __init__(self, name, **kwargs):
         global typeid
         self.name = name
         self.id = typeid
         typeid += 1
+
+    def toString(self, i: int):
+        return f"t{self.id}"
 
 
 class Ptr(MyType):
@@ -83,7 +129,7 @@ class Ptr(MyType):
 literalCountId = 0
 
 
-class MyLiteral:
+class MyLiteral(IStringable):
     def __init__(self, text: str, tokenIndex: int) -> None:
         global literalCountId
         self.text = text
@@ -91,8 +137,11 @@ class MyLiteral:
         self.id = literalCountId
         literalCountId += 1
 
+    def toString(self, i: int):
+        return f"l{self.id}"
 
-keywords: list[MyKeyword] = [
+
+keywordsdict: list[MyKeyword] = [
     MyKeyword("for"),
     MyKeyword("while"),
     MyKeyword("do"),
@@ -111,9 +160,9 @@ keywords: list[MyKeyword] = [
 ]
 
 kwStr = ""
-for i in range(len(keywords)):
-    kwStr += re.escape(keywords[i].word)
-    if i != len(keywords) - 1:
+for i in range(len(keywordsdict)):
+    kwStr += re.escape(keywordsdict[i].word)
+    if i != len(keywordsdict) - 1:
         kwStr += "|"
 
 keywordsPattern = re.compile("(" + kwStr + ")")
@@ -136,22 +185,26 @@ types: list[MyType] = [
 ]
 
 operators: list[MyOperator] = [
-    MyOperator("++"),
-    MyOperator("--"),
-    MyOperator("*"),
-    MyOperator("/"),
-    MyOperator("+"),
-    MyOperator("=="),
-    MyOperator("-"),
-    MyOperator("<"),
-    MyOperator(">"),
-    MyOperator("<="),
-    MyOperator(">="),
-    MyOperator("&&"),
-    MyOperator("||"),
-    MyOperator("&="),
-    MyOperator("|="),
-    MyOperator("="),
+    MyOperator("++", 2),
+    MyOperator("--", 2),
+    MyOperator("->", 2),
+    MyOperator("*", 5),
+    MyOperator("/", 5),
+    MyOperator("+", 6),
+    MyOperator("==", 9),
+    MyOperator("-", 6),
+    MyOperator("<", 8),
+    MyOperator(">", 8),
+    MyOperator("<=", 8),
+    MyOperator(">=", 8),
+    MyOperator("&&", 13),
+    MyOperator("||", 14),
+    MyOperator("&=", 15),
+    MyOperator("|=", 15),
+    MyOperator("=", 15),
+    MyOperator("&", 3),
+    MyOperator(".", 2),
+    MyOperator("?", 15),
 ]
 
 operatorsStr: str = "("
@@ -168,8 +221,6 @@ operatorsPattern = re.compile(operatorsStr)
 separators: list[MySeparator] = [
     MySeparator(";"),
     MySeparator(","),
-    MySeparator(":"),
-    MySeparator("?"),
 ]
 separatorsStr: str = "("
 ttmp: str = ""
@@ -179,10 +230,13 @@ for i in range(len(separators)):
         ttmp += "|"
 
 separatorsStr += ttmp + ")"
-# print(separatorsStr)
 separatorsPattern = re.compile(separatorsStr)
 
-brackets: list[MyBrackets] = [MyBrackets("()"), MyBrackets("[]"), MyBrackets("{}")]
+brackets: list[MyBrackets] = [
+    MyBrackets("()", 2),
+    MyBrackets("[]", 2),
+    MyBrackets("{}", None),
+]
 bracketsStr = ""
 for i in range(len(brackets)):
     bracketsStr += (
@@ -222,7 +276,6 @@ def separate(text) -> list[str]:
     i: int = 0
     while i < len(res):
         piece = res[i]
-        # print(res[i])
         tmp = re.findall(operatorsPattern, piece)
         if tmp:
             separated = separateByMatches(tmp, res[i])
@@ -252,7 +305,6 @@ def findInTableById(table: list, id: int):
 
 def findInTableByName(table: list, name: str) -> int:
     for i in range(len(table) - 1, -1, -1):
-        print(i)
         if table[i].name == name:
             return i
     return None
@@ -260,7 +312,6 @@ def findInTableByName(table: list, name: str) -> int:
 
 def findInTypeTableByName(table: list[MyType], name: str):
     for i in range(len(table) - 1, -1, -1):
-        print(i)
         if table[i].name == name:
             return i
     return None
@@ -281,7 +332,7 @@ def createTables(tokens: list[str]):
     scope_starts = [0]
     type_table: list[MyType] = []
 
-    literals_table: list = []
+    literals_table: list[MyLiteral] = []
     for mytype in types:
         type_table.append(mytype)
 
@@ -291,7 +342,6 @@ def createTables(tokens: list[str]):
         if tokens[i] == "}":
             scope_starts.pop()
 
-        print(tokens[i])
         isLiteral: bool = False
         # if not keyword operator or literal or sep then identificator
         for typename, pattern in literalsPatterns:
@@ -324,12 +374,12 @@ def createTables(tokens: list[str]):
 
             # if new type
             if tokens[i - 1] == "struct":
-                print("it's new type!!!")
+                # print("it's new type!!!")
                 index = findInTypeTableByName(type_table, tokens[i])
                 if index == None:
                     type_table.append(MyType(tokens[i]))
 
-            print("it's variable!!!")
+            # print("it's variable!!!")
             # if type before var declaration
             index = findInTableByName(type_table, tokens[i])
             if index != None:
@@ -360,13 +410,13 @@ def createTables(tokens: list[str]):
             if isLiteral:
                 literals_table.append(MyLiteral(tokens[i], i))
 
-    for i in range(len(vars_table)):
-        print(
-            f"var{vars_table[i].id} {vars_table[i].name} {vars_table[i].mytype.name} {vars_table[i].scopeStart}"
-        )
+    # for i in range(len(vars_table)):
+    #     print(
+    #         f"var{vars_table[i].id} {vars_table[i].name} {vars_table[i].mytype.name} {vars_table[i].scopeStart}"
+    #     )
 
-    for i in range(len(type_table)):
-        print(f"t{type_table[i].id} {type_table[i].name}")
+    # for i in range(len(type_table)):
+    #     print(f"t{type_table[i].id} {type_table[i].name}")
     return (type_table, vars_table, literals_table)
 
 
@@ -385,7 +435,7 @@ def change_to_ids(
     literals_table: list[MyLiteral],
     original_tokens: list[str],
 ):
-    new_tokens = original_tokens.copy()
+    new_tokens: list[IStringable] = original_tokens.copy()
     scope_starts: dict[str, list[int]] = {}
     for br in brackets:
         scope_starts[br.symbols] = []
@@ -397,49 +447,48 @@ def change_to_ids(
             vars_table, new_tokens[i], scope_starts["{}"][-1]
         )
         if var_cell is not None:
-            new_tokens[i] = f"v{var_cell.id}"
+            new_tokens[i] = var_cell
             continue
         type_index = findInTypeTableByName(type_table, new_tokens[i])
 
         if type_index is not None:
-            new_tokens[i] = f"t{type_table[type_index].id}"
+            new_tokens[i] = type_table[type_index]
             continue
 
         if i in [it.tokenIndex for it in literals_table]:
             for literal in literals_table:
                 if literal.tokenIndex == i:
-                    new_tokens[i] = f"l{literal.id}"
+                    new_tokens[i] = literal
         elif new_tokens[i] in [op.symbol for op in operators]:
             for op in operators:
                 if new_tokens[i] == op.symbol:
-                    new_tokens[i] = f"o{op.id}"
-        elif new_tokens[i] in [kw.word for kw in keywords]:
-            for kw in keywords:
+                    new_tokens[i] = op
+        elif new_tokens[i] in [kw.word for kw in keywordsdict]:
+            for kw in keywordsdict:
                 if kw.word == new_tokens[i]:
-                    new_tokens[i] = f"k{kw.id}"
+                    new_tokens[i] = kw
         elif new_tokens[i] in [sep.symbol for sep in separators]:
             for sep in separators:
                 if sep.symbol == new_tokens[i]:
-                    new_tokens[i] = f"s{sep.id}"
+                    new_tokens[i] = sep
         elif new_tokens[i] in [br.openSymbol for br in brackets]:
             for br in brackets:
                 if br.openSymbol == new_tokens[i]:
                     scope_starts[br.symbols].append(i)
-                    new_tokens[i] = f"b{br.id}o{scope_starts[br.symbols][-1]}"
+                    br.open(i)
+                    new_tokens[i] = br
         elif new_tokens[i] in [br.closeSymbol for br in brackets]:
             for br in brackets:
                 if br.closeSymbol == new_tokens[i]:
                     poped = scope_starts[br.symbols].pop()
-                    new_tokens[i] = f"b{br.id}c{poped}"
+                    br.close(poped, i)
+                    new_tokens[i] = br
 
     return new_tokens
 
 
 def analyze(text: str):
-    # print(text)
     tokens = separate(text)
-    # for token in tokens:
-    #     print(token)
     (type_table, vars_table, literals_table) = createTables(tokens)
     new_tokens = change_to_ids(type_table, vars_table, literals_table, tokens)
     file = open("res.txt", "w")
@@ -447,7 +496,7 @@ def analyze(text: str):
 
     print("tokens:\n", file=file)
     for i in range(len(new_tokens)):
-        print(f"{new_tokens[i]}  ==  {tokens[i]}", file=file)
+        print(f"{new_tokens[i].toString(i)}  ==  {tokens[i]}", file=file)
 
     print("\n-------------\n", file=file)
     print("table of types(t):\n", file=file)
@@ -461,7 +510,7 @@ def analyze(text: str):
 
     print("\n-------------\n", file=file)
     print("table of keywords(k):\n", file=file)
-    for kw in keywords:
+    for kw in keywordsdict:
         print(f"{kw.id} {kw.word}", file=file)
 
     print("\n-------------\n", file=file)
@@ -480,6 +529,8 @@ def analyze(text: str):
         print(f"{op.id} {op.symbol}", file=file)
     file.close()
 
+    return (new_tokens, type_table, vars_table, literals_table)
+
 
 def clearComments(text: str) -> str:
     new_text = str()
@@ -497,13 +548,3 @@ def clearComments(text: str) -> str:
         new_text += text[i]
         i += 1
     return new_text
-
-
-if __name__ == "__main__":
-    # print("hui")
-    file = open("test.c")
-    text: str = file.read()
-    file.close()
-    text = clearComments(text)
-    print(text)
-    analyze(text)
