@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "D:\\6sem\\ISOB\\Lab3\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\tcppacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:tcppacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -19,8 +15,19 @@
       "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:synflooder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\tcppacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:tcppacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\kirka\\AppData\\Local\\Temp\\Rar$DIa2044.13317\\Server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\lab3.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:lab3.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|d:\\6sem\\isob\\lab3\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FD2530C-A259-4E82-8B69-3B15414797B1}|Lab3.csproj|solutionrelative:client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,65 +45,86 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
+              "Title": "Server.cs",
+              "DocumentMoniker": "C:\\Users\\kirka\\AppData\\Local\\Temp\\Rar$DIa2044.13317\\Server.cs",
+              "ToolTip": "C:\\Users\\kirka\\AppData\\Local\\Temp\\Rar$DIa2044.13317\\Server.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-26T21:05:51.081Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Lab3.csproj",
+              "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\Lab3.csproj",
+              "RelativeDocumentMoniker": "Lab3.csproj",
+              "ToolTip": "D:\\6sem\\ISOB\\Lab3\\Lab3.csproj",
+              "RelativeToolTip": "Lab3.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-03-26T21:04:04.14Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Server.cs",
               "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\Server.cs",
               "RelativeDocumentMoniker": "Server.cs",
               "ToolTip": "D:\\6sem\\ISOB\\Lab3\\Server.cs",
               "RelativeToolTip": "Server.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAABjAAAA",
+              "ViewState": "AQIAADkAAAAAAAAAAAAwwE8AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-25T10:15:34.312Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "Client.cs",
               "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\Client.cs",
               "RelativeDocumentMoniker": "Client.cs",
               "ToolTip": "D:\\6sem\\ISOB\\Lab3\\Client.cs",
               "RelativeToolTip": "Client.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAABsAAAA",
+              "ViewState": "AQIAAJIAAAAAAAAAAAAUwAsAAAAtAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-25T10:14:53.937Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-25T10:14:53.937Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "TcpPacket.cs",
               "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\TcpPacket.cs",
               "RelativeDocumentMoniker": "TcpPacket.cs",
               "ToolTip": "D:\\6sem\\ISOB\\Lab3\\TcpPacket.cs",
               "RelativeToolTip": "TcpPacket.cs",
-              "ViewState": "AQIAAAgAAAAAAAAAAAAAwBIAAAALAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAXAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-25T10:14:45.171Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "SynFlooder.cs",
               "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\SynFlooder.cs",
               "RelativeDocumentMoniker": "SynFlooder.cs",
               "ToolTip": "D:\\6sem\\ISOB\\Lab3\\SynFlooder.cs",
               "RelativeToolTip": "SynFlooder.cs",
-              "ViewState": "AQIAAG8AAAAAAAAAAAAqwAAAAAAAAAAA",
+              "ViewState": "AQIAAF8AAAAAAAAAAAAAAG4AAAAwAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-25T10:14:42.102Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\6sem\\ISOB\\Lab3\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\6sem\\ISOB\\Lab3\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAABVAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-24T20:11:10.172Z",
               "EditorCaption": ""

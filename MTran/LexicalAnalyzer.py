@@ -10,7 +10,7 @@ class VariableTableCell(IStringable):
     def __init__(self, id: int, name: str, mytype, scopeStart: int):
         self.id = id
         self.name = name
-        self.mytype = mytype
+        self.mytype: MyType = mytype
         self.scopeStart = scopeStart
 
     def toString(self, i: int):
@@ -141,7 +141,7 @@ class MyLiteral(IStringable):
         return f"l{self.id}"
 
 
-keywordsdict: list[MyKeyword] = [
+keywordsList: list[MyKeyword] = [
     MyKeyword("for"),
     MyKeyword("while"),
     MyKeyword("do"),
@@ -160,9 +160,9 @@ keywordsdict: list[MyKeyword] = [
 ]
 
 kwStr = ""
-for i in range(len(keywordsdict)):
-    kwStr += re.escape(keywordsdict[i].word)
-    if i != len(keywordsdict) - 1:
+for i in range(len(keywordsList)):
+    kwStr += re.escape(keywordsList[i].word)
+    if i != len(keywordsList) - 1:
         kwStr += "|"
 
 keywordsPattern = re.compile("(" + kwStr + ")")
@@ -185,9 +185,9 @@ types: list[MyType] = [
 ]
 
 operators: list[MyOperator] = [
-    MyOperator("++", 2),
-    MyOperator("--", 2),
-    MyOperator("->", 2),
+    MyOperator("++", 2, argCount="unar", direction="both"),
+    MyOperator("--", 2, argCount="unar", direction="both"),
+    MyOperator("->", 2, argCount="unar", direction="right"),
     MyOperator("*", 5),
     MyOperator("/", 5),
     MyOperator("+", 6),
@@ -421,11 +421,20 @@ def createTables(tokens: list[str]):
 
 
 def find_var_by_name_and_scope(
-    vars_table: list[VariableTableCell], name: str, scopeStart: int
+    vars_table: list[VariableTableCell], name: str, scopeStart: int, symbols: str = "{}"
 ):
+    variants: list[VariableTableCell] = list()
+    scope_brackets = [bracket for bracket in brackets if bracket.symbols == symbols][0]
     for cell in vars_table:
-        if cell.name == name and cell.scopeStart == scopeStart:
-            return cell
+        if cell.name == name and (
+            cell.scopeStart <= scopeStart
+            and scope_brackets.openClose.get(scopeStart) is None
+        ):
+            variants.append(cell)
+
+    if len(variants):
+        return variants.pop()
+
     return None
 
 
@@ -446,6 +455,15 @@ def change_to_ids(
         var_cell = find_var_by_name_and_scope(
             vars_table, new_tokens[i], scope_starts["{}"][-1]
         )
+        print(
+            f'token {new_tokens[i]} var_cell {var_cell} scopestart {scope_starts["{}"][-1]}'
+        )
+
+        if var_cell is None and len(scope_starts["()"]):
+            var_cell = find_var_by_name_and_scope(
+                vars_table, new_tokens[i], scope_starts["()"][-1], symbols="()"
+            )
+
         if var_cell is not None:
             new_tokens[i] = var_cell
             continue
@@ -463,8 +481,8 @@ def change_to_ids(
             for op in operators:
                 if new_tokens[i] == op.symbol:
                     new_tokens[i] = op
-        elif new_tokens[i] in [kw.word for kw in keywordsdict]:
-            for kw in keywordsdict:
+        elif new_tokens[i] in [kw.word for kw in keywordsList]:
+            for kw in keywordsList:
                 if kw.word == new_tokens[i]:
                     new_tokens[i] = kw
         elif new_tokens[i] in [sep.symbol for sep in separators]:
@@ -489,7 +507,12 @@ def change_to_ids(
 
 def analyze(text: str):
     tokens = separate(text)
+    for token in tokens:
+        print(token)
     (type_table, vars_table, literals_table) = createTables(tokens)
+
+    for var in vars_table:
+        print(f"{var.mytype.name} {var.name} {var.scopeStart}")
     new_tokens = change_to_ids(type_table, vars_table, literals_table, tokens)
     file = open("res.txt", "w")
     file.truncate()
@@ -510,7 +533,7 @@ def analyze(text: str):
 
     print("\n-------------\n", file=file)
     print("table of keywords(k):\n", file=file)
-    for kw in keywordsdict:
+    for kw in keywordsList:
         print(f"{kw.id} {kw.word}", file=file)
 
     print("\n-------------\n", file=file)

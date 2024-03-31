@@ -1,0 +1,266 @@
+Program
+    Global Variables:
+    Functions:
+        FunctionNode
+            Args:Body:
+            BodyNode
+                Instructions:
+                Declaration
+                    Type: t0
+                    var: v1
+                Declaration
+                    Type: t0
+                    var: v2
+                CalculatedValue
+                    Value: 
+                        BinarOperator
+                            Operator: =
+                            Left: 
+                                CalculatedValue
+                                    Value: 
+                                        Variable
+                                            Value: v1
+                            Right: 
+                                CalculatedValue
+                                    Value: 
+                                        BinarOperator
+                                            Operator: *
+                                            Left: 
+                                                CalculatedValue
+                                                    Value: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                BinarOperator
+                                                                    Operator: +
+                                                                    Left: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                Literal
+                                                                                    Value: l1
+                                                                    Right: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                Variable
+                                                                                    Value: v2
+                                            Right: 
+                                                CalculatedValue
+                                                    Value: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                BinarOperator
+                                                                    Operator: +
+                                                                    Left: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                BinarOperator
+                                                                                    Operator: /
+                                                                                    Left: 
+                                                                                        CalculatedValue
+                                                                                            Value: 
+                                                                                                Literal
+                                                                                                    Value: l2
+                                                                                    Right: 
+                                                                                        CalculatedValue
+                                                                                            Value: 
+                                                                                                Literal
+                                                                                                    Value: l3
+                                                                    Right: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                Literal
+                                                                                    Value: l4
+                While Cycle
+                    Condition:
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: >
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                BinarOperator
+                                                    Operator: -
+                                                    Left: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Literal
+                                                                    Value: l5
+                                                    Right: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Literal
+                                                                    Value: l6
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                Literal
+                                                    Value: l7
+                    Body:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v1
+                While Cycle
+                    Condition:
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: ||
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                Literal
+                                                    Value: l8
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                BinarOperator
+                                                    Operator: ||
+                                                    Left: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                BinarOperator
+                                                                    Operator: &&
+                                                                    Left: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                Literal
+                                                                                    Value: l9
+                                                                    Right: 
+                                                                        CalculatedValue
+                                                                            Value: 
+                                                                                Variable
+                                                                                    Value: v1
+                                                    Right: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Variable
+                                                                    Value: v2
+                    Body:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v2
+                For Cycle
+
+                    Declaration:
+                        Declaration
+                            Type: t0
+                            var: v3
+                    Condition:
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: <
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                Variable
+                                                    Value: v3
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                Literal
+                                                    Value: l11
+                    Action:
+                        CalculatedValue
+                            Value: 
+                                UnarOperator
+                                    Operator: o0
+                                    Var: v3
+                    Body:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v3
+                For Cycle
+
+                    Declaration:
+                        Declaration
+                            Type: t0
+                            var: v4
+                    Body:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v4
+                For Cycle
+
+                    Body:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v1
+                If statement
+                    Condition:
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: ||
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                BinarOperator
+                                                    Operator: >
+                                                    Left: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Variable
+                                                                    Value: v1
+                                                    Right: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Literal
+                                                                    Value: l13
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                BinarOperator
+                                                    Operator: <
+                                                    Left: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Variable
+                                                                    Value: v2
+                                                    Right: 
+                                                        CalculatedValue
+                                                            Value: 
+                                                                Literal
+                                                                    Value: l14
+                    THEN:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v1
+                    ELSE:
+                        BodyNode
+                            Instructions:
+                            CalculatedValue
+                                Value: 
+                                    UnarOperator
+                                        Operator: o0
+                                        Var: v1
+                Return:
+                    Return value:
+                        CalculatedValue
+                            Value: 
+                                Variable
+                                    Value: v1

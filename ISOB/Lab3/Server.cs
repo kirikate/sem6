@@ -20,7 +20,7 @@ public class Server
     public IPEndPoint Ip { get; }
 
     private readonly Dictionary<int, Socket> _clients = [];
-
+	
 
     public async Task ConnectClient(CancellationToken token)
     {
@@ -75,6 +75,8 @@ public class Server
             uint sequenceNumber = Convert.ToUInt32(Random.Shared.Next());
             uint acknowledgmentNumber = packet.SequenceNumber + 1;
             ushort windowSize = packet.WindowSize;
+
+			Console.WriteLine(packet);
 
             // second handshake
             Send(port, new TcpPacket()

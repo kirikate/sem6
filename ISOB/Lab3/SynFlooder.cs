@@ -108,7 +108,7 @@ public class SynFlooder
                 { 
                     WindowSize = 4, 
                     SourcePort = (ushort)Client.Instance.Ip.Port, 
-                    DestinationPort = (ushort)(1000 + i), 
+                    DestinationPort = (ushort)(6000 + i), 
                     SequenceNumber = 0, 
                     AcknowledgmentNumber = 0, 
                     Syn = true,

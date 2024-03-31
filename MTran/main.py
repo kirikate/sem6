@@ -1,5 +1,5 @@
 from LexicalAnalyzer import *
-from SytaxAnalyzer import *
+from SyntaxAnalyzer import *
 
 
 if __name__ == "__main__":
@@ -9,4 +9,10 @@ if __name__ == "__main__":
     file.close()
     text = clearComments(text)
     print(text)
-    res = analyze(text)
+    (tokens, type_table, vars_table, literals_table) = analyze(text)
+    program = Program(tokens, type_table, vars_table, literals_table)
+    tostr = program.toString(0)
+    file = open("res2.txt", "w")
+    file.truncate()
+    print(tostr, file=file)
+    file.close()
