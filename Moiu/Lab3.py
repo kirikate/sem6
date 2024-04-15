@@ -120,7 +120,7 @@ def main():
     int_n = 3
 
     matrix_a: np.matrix = np.matrix([[1, 1, 1], [2, 2, 2]])
-    vector_b = np.array([-1, 0])
+    vector_b = np.array([0, 0])
 
     start_phase(int_n, int_m, matrix_a, vector_b)
     return

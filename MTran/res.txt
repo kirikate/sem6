@@ -1,126 +1,201 @@
 tokens:
 
 t0  ==  int
-v0  ==  main
+v0  ==  func
 b0o2  ==  (
+t0  ==  int
+v1  ==  a
+s1  ==  ,
+t0  ==  int
+v2  ==  b
 b0c2  ==  )
-b2o4  ==  {
-t0  ==  int
-v1  ==  a
-s0  ==  ;
-t0  ==  int
+b2o9  ==  {
 v2  ==  b
 o16  ==  =
-l0  ==  78
-s0  ==  ;
 v1  ==  a
-o16  ==  =
-b0o15  ==  (
-l1  ==  7
 o5  ==  +
 v2  ==  b
-b0c15  ==  )
-o3  ==  *
-b0o21  ==  (
-l2  ==  3
-o4  ==  /
-l3  ==  8
-o5  ==  +
-l4  ==  7
-b0c21  ==  )
-s0  ==  ;
-k1  ==  while
-b0o30  ==  (
-l5  ==  56
-o7  ==  -
-l6  ==  7
-o9  ==  >
-l7  ==  8
-b0c30  ==  )
-b2o37  ==  {
-o0  ==  ++
-v1  ==  a
-s0  ==  ;
-b2c37  ==  }
-k1  ==  while
-b0o43  ==  (
-l8  ==  5
-o13  ==  ||
-l9  ==  8
-o12  ==  &&
-v1  ==  a
-o13  ==  ||
-v2  ==  b
-b0c43  ==  )
-o0  ==  ++
-v2  ==  b
-s0  ==  ;
-k0  ==  for
-b0o56  ==  (
-t0  ==  int
-v3  ==  c
-o16  ==  =
-l10  ==  0
-s0  ==  ;
-v3  ==  c
-o8  ==  <
-l11  ==  9
-s0  ==  ;
-o0  ==  ++
-v3  ==  c
-b0c56  ==  )
-b2o69  ==  {
-o0  ==  ++
-v3  ==  c
-s0  ==  ;
-b2c69  ==  }
-k0  ==  for
-b0o75  ==  (
-t0  ==  int
-v4  ==  c
-o16  ==  =
-l12  ==  0
-s0  ==  ;
-s0  ==  ;
-b0c75  ==  )
-b2o83  ==  {
-o0  ==  ++
-v4  ==  c
-s0  ==  ;
-b2c83  ==  }
-k0  ==  for
-b0o89  ==  (
-s0  ==  ;
-s0  ==  ;
-b0c89  ==  )
-b2o93  ==  {
-o0  ==  ++
-v1  ==  a
-s0  ==  ;
-b2c93  ==  }
-k7  ==  if
-b0o99  ==  (
-v1  ==  a
-o9  ==  >
-l13  ==  9
-o13  ==  ||
-v2  ==  b
-o8  ==  <
-l14  ==  7
-b0c99  ==  )
-b2o108  ==  {
-o0  ==  ++
-v1  ==  a
-s0  ==  ;
-b2c108  ==  }
-k13  ==  else
-o1  ==  --
-v1  ==  a
 s0  ==  ;
 k3  ==  return
-v1  ==  a
+v2  ==  b
 s0  ==  ;
-b2c4  ==  }
+b2c9  ==  }
+t1  ==  char
+v3  ==  f
+b0o22  ==  (
+b0c22  ==  )
+b2o24  ==  {
+k3  ==  return
+l0  ==  3.5f
+s0  ==  ;
+b2c24  ==  }
+t0  ==  int
+v4  ==  main
+b0o31  ==  (
+b0c31  ==  )
+b2o33  ==  {
+t1  ==  char
+v5  ==  a
+s0  ==  ;
+t0  ==  int
+v6  ==  b
+o16  ==  =
+l1  ==  7
+s0  ==  ;
+t8  ==  int*
+v7  ==  name
+s0  ==  ;
+t8  ==  int*
+v8  ==  name2
+s0  ==  ;
+v5  ==  a
+o16  ==  =
+b0o50  ==  (
+l2  ==  7
+o5  ==  +
+v6  ==  b
+b0c50  ==  )
+o3  ==  *
+b0o56  ==  (
+l3  ==  3
+o4  ==  /
+l4  ==  8
+o5  ==  +
+l5  ==  7
+b0c56  ==  )
+s0  ==  ;
+k1  ==  while
+b0o65  ==  (
+l6  ==  56
+o7  ==  -
+l7  ==  7
+o9  ==  >
+l8  ==  8
+b0c65  ==  )
+b2o72  ==  {
+o0  ==  ++
+v5  ==  a
+s0  ==  ;
+b2c72  ==  }
+k1  ==  while
+b0o78  ==  (
+l9  ==  5
+o13  ==  ||
+l10  ==  8
+o12  ==  &&
+v5  ==  a
+o13  ==  ||
+v6  ==  b
+b0c78  ==  )
+o0  ==  ++
+v6  ==  b
+s0  ==  ;
+k0  ==  for
+b0o91  ==  (
+t0  ==  int
+v9  ==  c
+o16  ==  =
+l11  ==  0
+s0  ==  ;
+v9  ==  c
+o8  ==  <
+l12  ==  9
+s0  ==  ;
+o0  ==  ++
+v9  ==  c
+b0c91  ==  )
+b2o104  ==  {
+o0  ==  ++
+v9  ==  c
+s0  ==  ;
+b2c104  ==  }
+k0  ==  for
+b0o110  ==  (
+t0  ==  int
+v10  ==  c
+o16  ==  =
+l13  ==  0
+s0  ==  ;
+s0  ==  ;
+b0c110  ==  )
+b2o118  ==  {
+o0  ==  ++
+v10  ==  c
+s0  ==  ;
+b2c118  ==  }
+k0  ==  for
+b0o124  ==  (
+s0  ==  ;
+s0  ==  ;
+b0c124  ==  )
+b2o128  ==  {
+o0  ==  ++
+v5  ==  a
+s0  ==  ;
+b2c128  ==  }
+k7  ==  if
+b0o134  ==  (
+v5  ==  a
+o9  ==  >
+l14  ==  9
+o13  ==  ||
+v6  ==  b
+o8  ==  <
+l15  ==  7
+b0c134  ==  )
+b2o143  ==  {
+o0  ==  ++
+v5  ==  a
+s0  ==  ;
+b2c143  ==  }
+k13  ==  else
+o1  ==  --
+v5  ==  a
+s0  ==  ;
+v0  ==  func
+b0o153  ==  (
+v5  ==  a
+s1  ==  ,
+v6  ==  b
+b0c153  ==  )
+s0  ==  ;
+v5  ==  a
+o16  ==  =
+v0  ==  func
+b0o162  ==  (
+l16  ==  4
+s1  ==  ,
+v6  ==  b
+o5  ==  +
+l17  ==  5
+b0c162  ==  )
+s0  ==  ;
+t1  ==  char
+v11  ==  t
+o16  ==  =
+l18  ==  'a'
+s0  ==  ;
+t7  ==  char*
+v12  ==  str
+o16  ==  =
+l19  ==  "str"
+s0  ==  ;
+o3  ==  *
+v8  ==  name2
+o16  ==  =
+b0o183  ==  (
+l20  ==  78
+b0c183  ==  )
+s0  ==  ;
+t9  ==  int**
+v13  ==  n
+o16  ==  =
+v7  ==  name
+s0  ==  ;
+k3  ==  return
+v5  ==  a
+s0  ==  ;
+b2c33  ==  }
 
 -------------
 
@@ -133,16 +208,54 @@ table of types(t):
 4 void
 5 double
 6 float
+7 char*
+8 int*
+9 int**
 
 -------------
 
 table of vars(v):
 
-0 main int 0
-1 a int 4
-2 b int 4
-3 c int 55
-4 c int 74
+0 func int 0
+1 a int 0
+2 b int 0
+3 f char 0
+4 main int 0
+5 a char 33
+6 b int 33
+7 name int* 33
+8 name2 int* 33
+9 c int 90
+10 c int 109
+11 t char 33
+12 str char* 33
+13 n int** 33
+
+-------------
+
+table of literals(l):
+
+0 float 3.5f
+1 int 7
+2 int 7
+3 int 3
+4 int 8
+5 int 7
+6 int 56
+7 int 7
+8 int 8
+9 int 5
+10 int 8
+11 int 0
+12 int 9
+13 int 0
+14 int 9
+15 int 7
+16 int 4
+17 int 5
+18 char 'a'
+19 char* "str"
+20 int 78
 
 -------------
 

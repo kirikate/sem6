@@ -6,13 +6,6 @@ bracketsdict = {br.symbols: br for br in brackets}
 separatorsDict = {s.symbol: s for s in separators}
 operatorsDict = {op.symbol: op for op in operators}
 
-
-def find(iterable, func):
-    for it in iterable:
-        if func(it):
-            return it
-
-
 class INode(IStringable):
     def __init__(self, parent):
         self.parent: INode = parent
@@ -37,12 +30,22 @@ class INode(IStringable):
     def toString(self, i: int):
         pass
 
+    def getRoot(self):
+        it = self
+        while it.parent != None:
+            it = it.parent
+        
+        return it
+    
+    def ValidateTypes(self)->MyType:
+        pass
+
 
 class UnarOperatorNode(INode):
     def __init__(self, parent, operator: MyOperator):
         super().__init__(parent)
-        self.operator = operator
-        self.variable = None
+        self.operator: MyOperator = operator
+        self.variable: VariableTableCell = None
 
     def buildTree(
         self,
@@ -73,6 +76,27 @@ class UnarOperatorNode(INode):
             )
 
         return i
+
+    def ValidateTypes(self) -> MyType:
+        if self.operator != operatorsDict['*'] and self.operator != operatorsDict['&']:
+            self.operator.verificator(self.operator, self.variable.mytype, None)
+        else:
+            if self.operator is operatorsDict['*']:
+                if type(self.variable.mytype) != MyPtr:
+                    raise Exception(
+                        f"Semantic error: attempt to use {self.variable.mytype.name} as pointer"
+                    )
+                ptr: MyPtr = self.variable.mytype
+                if ptr.level == 1:
+                    return ptr.pointersTo
+                else:
+                    return MyPtr([ptr.pointersTo], ptr.name[i:-1])
+            else:
+                if type(self.variable.mytype) != MyPtr:
+                    return MyPtr([self.variable.mytype], self.variable.mytype.name + '*')
+                else:
+                    return MyPtr([self.variable.mytype.pointersTo], self.variable.mytype.name + '*')
+        return self.variable.mytype
 
     def toString(self, i: int):
         tab: str = ""
@@ -107,7 +131,20 @@ class BinarOperatorNode(INode):
         self.right = rcn
 
         return self.end
-
+    
+    def ValidateTypes(self) -> MyType:
+        tl = self.left.ValidateTypes()
+        tr = self.right.ValidateTypes()
+        print(self.operator.symbol)
+        self.operator.verificator(self.operator, tl, tr)
+        if self.operator.prior != 15:
+            if tl.prior < tr.prior:
+                return tl
+            else:
+                return tr
+        else:
+            return tr
+    
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -130,7 +167,11 @@ class GetLiteralValueNode(INode):
         if not (tokens[index] in literals_table):
             raise Exception(f"Syntax error at token {i}: Unkown literal")
         self.literal: MyLiteral = tokens[index]
+
         return index
+
+    def ValidateTypes(self) -> MyType:
+        return self.literal.mytype
 
     def toString(self, i: int):
         tab: str = ""
@@ -161,6 +202,19 @@ class ReturnNode(INode):
         self.retVal = cv
 
         return i
+
+    def ValidateTypes(self) -> MyType:
+        it = self.parent
+        while type(it) != FunctionNode:
+            it = it.parent
+        
+        retType = self.retVal.ValidateTypes()
+        it:FunctionNode = it
+        if it.mytype not in types:
+            if it.mytype != retType:
+                raise Exception(f"Semantic Error: incorrect return type in function {it.name}")
+
+        return retType
 
     def toString(self, i: int):
         tab: str = ""
@@ -213,6 +267,10 @@ class WhileNode(INode):
             i = ti
             self.body = body
         return i
+
+    def ValidateTypes(self) -> MyType:
+        self.body.ValidateTypes()
+        self.condition.ValidateTypes()
 
     def toString(self, i: int):
         tab: str = ""
@@ -284,6 +342,17 @@ class ForNode(INode):
             i = ti
             self.body = body
         return i
+
+    def ValidateTypes(self) -> MyType:
+        self.body.ValidateTypes()
+        if self.condition:
+            self.condition.ValidateTypes()
+        
+        if self.declaration:
+            self.declaration.ValidateTypes()
+        
+        if self.action:
+            self.action.ValidateTypes()
 
     def toString(self, i: int):
         tab: str = ""
@@ -366,6 +435,13 @@ class IfNode(INode):
 
         return i
 
+    def ValidateTypes(self) -> MyType:
+        self.condition.ValidateTypes()
+        self.thenBody.ValidateTypes()
+
+        if self.elseBody:
+            self.elseBody.ValidateTypes()
+
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -381,6 +457,7 @@ class IfNode(INode):
 class GetVariableValueNode(INode):
     def __init__(self, parent):
         super().__init__(parent)
+        self.variable: VariableTableCell = None
 
     def buildTree(
         self,
@@ -390,21 +467,24 @@ class GetVariableValueNode(INode):
         vars_table: list[VariableTableCell],
         literals_table: list[MyLiteral],
     ) -> int:
-
+        print(f'GVVN : index {index}, token: {tokens[index].toString(0)}, scopestart: {tokens[index].scopeStart}')
         scopeStart = tokens[index].scopeStart
         if not (
             scopeStart < index
             and bracketsdict["{}"].openClose.get(scopeStart, -1) > index
-            or (
-                bracketsdict["()"].openClose[scopeStart + 1] > index
-                and tokens[scopeStart] is keywordsDict["for"]
-            )
+            
         ):
-            raise Exception(f"Syntax error at token {index}: Unknown variable")
+            if not (
+                tokens[scopeStart] is keywordsDict["for"] or tokens[scopeStart] in vars_table
+            ):
+                raise Exception(f"Syntax error at token {index}: Unknown variable")
 
         self.variable = tokens[index]
 
         return index
+
+    def ValidateTypes(self) -> MyType:
+        return self.variable.mytype
 
     def toString(self, i: int):
         tab: str = ""
@@ -439,9 +519,19 @@ class CalculatedValueNode(INode):
                 print(
                     f" operating at {self.begin} {self.end} token is operator: {tokens[i].toString(i)} prior: {tokens[i].prior} currentPrior: {currentPrior}"
                 )
-                if tokens[i].prior > currentPrior:
+                prior = tokens[i].prior
+
+                if tokens[i] is operatorsDict['*'] or tokens[i] is operatorsDict['&']:
+                    if tokens[i-1] in brackets:
+                        br: MyBrackets = tokens[i-1]
+                        if br.openClose.get(i -1) != None:
+                            prior = 3
+                    elif tokens[i-1] in operators or tokens[i-1] in separators:
+                        prior = 3
+
+                if prior > currentPrior:
                     currentPriorOperatorIndex = i
-                    currentPrior = tokens[i].prior
+                    currentPrior = prior
             elif tokens[i] in vars_table:
                 if (
                     tokens[i + 1] in brackets
@@ -479,10 +569,12 @@ class CalculatedValueNode(INode):
                 vn = GetLiteralValueNode(self)
                 vn.buildTree(tokens, index, type_table, vars_table, literals_table)
                 self.value = vn
+
             elif tokens[index] in vars_table:
                 vn = GetVariableValueNode(self)
                 vn.buildTree(tokens, index, type_table, vars_table, literals_table)
                 self.value = vn
+
         elif tokens[currentPriorOperatorIndex] in operators:
             op = find(operators, lambda op: op == tokens[currentPriorOperatorIndex])
             if op.argCount == "unar":
@@ -495,17 +587,26 @@ class CalculatedValueNode(INode):
                     literals_table,
                 )
                 self.value = uo
+
             elif op.argCount == "binar":
-                bo = BinarOperatorNode(self, op, self.begin, self.end)
-                i = bo.buildTree(
-                    tokens,
-                    currentPriorOperatorIndex,
-                    type_table,
-                    vars_table,
-                    literals_table,
-                )
-                self.value = bo
+                print(f'prior: {prior}, op: {op.symbol}')
+                if prior == 3 and (op is operatorsDict['&'] or op is operatorsDict['*']):
+                    uo = UnarOperatorNode(self, op)
+                    i = uo.buildTree(tokens, currentPriorOperatorIndex, type_table, vars_table, literals_table)
+                    self.value = uo
+                else:
+                    bo = BinarOperatorNode(self, op, self.begin, self.end)
+                    i = bo.buildTree(
+                        tokens,
+                        currentPriorOperatorIndex,
+                        type_table,
+                        vars_table,
+                        literals_table,
+                    )
+                    self.value = bo
+
         elif tokens[currentPriorOperatorIndex] in brackets:
+
             br: MyBrackets = tokens[currentPriorOperatorIndex]
             cn = CalculatedValueNode(
                 self,
@@ -520,9 +621,15 @@ class CalculatedValueNode(INode):
                 literals_table,
             )
             self.value = cn
-            i = br.openClose[currentPriorOperatorIndex]
+            i = br.openClose[currentPriorOperatorIndex]     
+        elif tokens[currentPriorOperatorIndex] in vars_table:
+            fcn = FunctionCallNode(self)
+            fcn.buildTree(tokens, currentPriorOperatorIndex, type_table, vars_table, literals_table)
+            self.value = fcn
+            br: MyBrackets = tokens[currentPriorOperatorIndex + 1]
+            i = br.openClose[currentPriorOperatorIndex + 1]
         else:
-            print(f"index is {index} currentPriorOpInd is {currentPriorOperatorIndex}")
+            print(f"index is {index} currentPriorOpInd is {currentPriorOperatorIndex} token: {tokens[currentPriorOperatorIndex].toString(i)}")
             raise Exception(
                 f"Syntax error at token {i}: Unkown type to identify operator"
             )
@@ -531,6 +638,9 @@ class CalculatedValueNode(INode):
 
     def getVariable(self, name: str):
         self.parent.getVariable(name)
+
+    def ValidateTypes(self) -> MyType:
+        return self.value.ValidateTypes()
 
     def toString(self, i: int):
         tab: str = ""
@@ -575,6 +685,7 @@ class DeclarationNode(INode):
 
             cn = CalculatedValueNode(self, oldI + 1, i)
             cn.buildTree(tokens, oldI + 1, type_table, vars_table, literals_table)
+            self.initialValue = cn
             return i
         if tokens[i] is separatorsDict[";"]:
             return i
@@ -584,6 +695,20 @@ class DeclarationNode(INode):
 
     def execute(self):
         pass
+
+    def ValidateTypes(self) -> MyType:
+        if self.initialValue:
+            t = self.initialValue.ValidateTypes()
+            if self.varType in types:
+                if t not in types:
+                    raise Exception(f"Semantic error: declaration init value incorrect type: "+
+                                    f"init value type: {t.name}, variable type {self.varType.name}")
+            else:
+                if type(t) != self.varType:
+                    raise Exception(
+                        f"Semantic error: declaration init value incorrect type: "
+                        + f"init value type: {t.name}, variable type {self.varType.name}"
+                    )
 
     def toString(self, i: int):
         tab: str = ""
@@ -599,7 +724,7 @@ class DeclarationNode(INode):
 class BodyNode(INode):
     def __init__(self, parent: INode, begin: int, end: int):
         super().__init__(parent)
-        self.instructions: list[IStringable] = list()
+        self.instructions: list[INode] = list()
         self.begin = begin
         self.end = end
 
@@ -653,6 +778,10 @@ class BodyNode(INode):
 
         return self.end
 
+    def ValidateTypes(self) -> MyType:
+        for instruction in self.instructions:
+            instruction.ValidateTypes()
+
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -665,10 +794,11 @@ class BodyNode(INode):
 
 
 class ArgumentDeclaration(INode):
-    def __init__(self, parent: INode):
+    def __init__(self, parent: INode, scopeStart: int):
         super().__init__(parent)
         self.type: MyType = None
         self.var: VariableTableCell = None
+        self.scopeStart = scopeStart
 
     def buildTree(
         self,
@@ -689,6 +819,8 @@ class ArgumentDeclaration(INode):
                 f"Syntax error at token {index + 1}: declaration of function argument without name"
             )
         self.var = tokens[index + 1]
+        
+        tokens[index+1].scopeStart = self.scopeStart
 
         return index + 1
 
@@ -705,6 +837,7 @@ class FunctionNode(INode):
         self.argsDeclarations: list[ArgumentDeclaration] = list()
         self.body: BodyNode = None
         self.name: VariableTableCell = None
+        self.mytype: MyType = None
 
     def buildTree(
         self,
@@ -714,6 +847,7 @@ class FunctionNode(INode):
         vars_table: list[VariableTableCell],
         literals_table: list[MyLiteral],
     ) -> int:
+        self.mytype = tokens[index]
         var: VariableTableCell = tokens[index + 1]
         self.name = var.name
 
@@ -724,12 +858,12 @@ class FunctionNode(INode):
 
         while i < argEndIndex and i < argEndIndex - 1:
             i += 1
-            adn = ArgumentDeclaration(self)
+            adn = ArgumentDeclaration(self, index + 1)
             i = adn.buildTree(tokens, i, type_table, vars_table, literals_table)
             self.argsDeclarations.append(adn)
             if (
                 tokens[i + 1] not in brackets
-                or tokens[i + 1] is not separatorsDict[","]
+                and tokens[i + 1] is not separatorsDict[","]
             ):
                 raise Exception(
                     f"Syntax error at token {i + 1}: incorrect function argument separation"
@@ -750,6 +884,9 @@ class FunctionNode(INode):
 
         return functionEnd
 
+    def ValidateTypes(self) -> MyType:
+        self.body.ValidateTypes()
+
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -759,6 +896,78 @@ class FunctionNode(INode):
             res += f"\n{arg.toString(i + 1)}"
 
         res += f"Body:\n{self.body.toString(i+1)}"
+
+        return res
+
+class FunctionCallNode(INode):
+    def __init__(self, parent:INode):
+        super().__init__(parent)
+        self.func: VariableTableCell = None
+        self.args: list[CalculatedValueNode] = list[CalculatedValueNode]()
+
+    def buildTree(
+        self,
+        tokens: list[IStringable],
+        index: int,
+        type_table: list[MyType],
+        vars_table: list[VariableTableCell],
+        literals_table: list[MyLiteral],
+    ) -> int:
+        i = index
+        self.func = tokens[i]
+
+        if tokens[i+1] is not bracketsdict['()']:
+            raise Exception(f"Syntax error at token {i+1}: '(' was expected")
+
+        closeIndex = bracketsdict["()"].openClose[i+1]
+        beg = i + 2
+        i = i + 2
+        while i < closeIndex:
+            while i < closeIndex and tokens[i] is not separatorsDict[',']:
+                i += 1
+            print(f"beg: {beg}, end: {i}, closeIndex: {closeIndex}, token[end]: {tokens[i].toString(i)}")
+            cv = CalculatedValueNode(self, beg, i)
+            cv.buildTree(tokens, beg, type_table, vars_table, literals_table)
+            self.args.append(cv)
+            beg = i + 1
+            i = i + 1
+
+        return closeIndex
+
+    def ValidateTypes(self) -> MyType:
+        program:Program = self.getRoot()
+        func = program.functions.get(self.func)
+        if func is None:
+            raise Exception(f"Semantic error: there is no function {self.func.name}")
+
+        args = func.argsDeclarations
+        if len(args) != len(self.args):
+            raise Exception(f'Semantic error: incorrect number of arguments in call of {func.name}'+
+                             f'({len(self.args)} instead of {len(args)})')
+
+        for i in range(len(args)):
+            t = self.args[i].ValidateTypes()
+            if args[i].type not in types:
+                if t != args[i].type:
+                    raise Exception(f'Semantic error: incorrect type of argument {i} in function call of {func.name}')
+            else:
+                if t not in types:
+                    raise Exception(
+                        f"Semantic error: incorrect type of argument {i} in function call of {func.name}"
+                    )
+            
+        return func.mytype
+
+    def toString(self, i:int)->str:
+        tab: str = ""
+        for ind in range(i):
+            tab += "    "
+        res = f"{tab}FunctionCallNode\n{tab}    Func: {self.func.toString(i)} {self.func.name}\n{tab}    Args:"
+        if len(self.args) == 0:
+            res += f'\n{tab}        None'
+        else:
+            for arg in self.args:
+                res += f"\n{arg.toString(i+2)}"
 
         return res
 
@@ -774,6 +983,7 @@ class Program(INode):
         super().__init__(None)
         self.functions = dict[str, FunctionNode]()
         self.variables = dict[str, DeclarationNode]()
+        self.parent = None
 
         i: int = 0
         while i < len(tokens):
@@ -796,6 +1006,13 @@ class Program(INode):
                     "Error at token i: On;y function declarations, global variables and include directives can be in global scope"
                 )
             i += 1
+
+    def ValidateTypes(self) -> MyType:
+        for f in self.functions.values():
+            f.ValidateTypes()
+        
+        for v in self.variables.values():
+            v.ValidateTypes()
 
     def toString(self, i: int):
         tab: str = ""

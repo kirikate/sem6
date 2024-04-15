@@ -26,7 +26,7 @@ END;
 /*CREATE SEQUENCE group_id_sequence
 START WITH 1
 INCREMENT BY 1;*/
-/
+
 CREATE OR REPLACE TRIGGER generate_group_id
 BEFORE INSERT ON Groupes
 FOR EACH ROW
@@ -95,32 +95,42 @@ BEGIN
 END;
 
 /
-
 --Задание 5
 CREATE OR REPLACE PROCEDURE rollback_students(r_time TIMESTAMP) IS
 BEGIN
+    DBMS_OUTPUT.put_line('LOL??');
+    INSERT INTO Table1(Column1) VALUES('LOL');
+    execute immediate 'alter trigger students_journal disable';
     FOR action IN (SELECT * FROM student_journal WHERE r_time < op_time ORDER BY id DESC)
     LOOP
-        CASE action.operation
-            WHEN 'INSERT' THEN
+            DBMS_OUTPUT.put_line(action.operation);
+            if action.operation = action.operation
+            THEN
+                DBMS_OUTPUT.put_line('equal');
+            END IF;
+            IF action.operation = 'INSERT' THEN
                 DELETE Students WHERE id = action.s_id;
-
-            WHEN 'UPDATE' THEN
+                DBMS_OUTPUT.put_line('DELETE ');
+            ELSIF action.operation =  'UPDATE' THEN
                 UPDATE Students
                 SET id = action.s_id,
                     name = action.s_name,
                     group_id = action.s_group_id
                 WHERE id = action.n_s_id;
+                DBMS_OUTPUT.put_line('UPDATE ');
 
-            WHEN 'DELETE' THEN
+            ELSIF action.operation =  'DELETE' THEN
                 INSERT INTO Students VALUES (action.s_id, action.s_name, action.s_group_id);
-        END CASE;
+                DBMS_OUTPUT.put_line('INSERT ');
+        END IF;
     END LOOP;
+    execute immediate 'alter trigger students_journal enable';
 END;
 /
 
 CREATE OR REPLACE PROCEDURE rollback_students_by_offset(offset NUMBER) IS
 BEGIN
+    DBMS_OUTPUT.put_line('LOL?');
     rollback_students(TO_TIMESTAMP(CURRENT_TIMESTAMP - INTERVAL '1'MINUTE * offset ));
 END;
 /
@@ -158,7 +168,7 @@ BEGIN
     END IF;
 END;
 /
-
+--- TESTS
 DELETE FROM Students;
 DELETE FROM Groupes;
 DELETE FROM student_journal;
@@ -189,13 +199,18 @@ delete from groupes where name = '153503';
 SELECT * FROM Students;
 
 --проверка журналирования
---SELECT * FROM stud_journal
+SELECT * FROM student_journal;
 
 --проверка возврата по временной метке
---call roll_back_students(TO_TIMESTAMP ('23.02.24 14:10:10.123000', 'DD.MM.RRRR HH24:MI:SS.FF'))
+--call rollback_students(TO_TIMESTAMP ('23.02.24 14:10:10.123000', 'DD.MM.RRRR HH24:MI:SS.FF'))
 
 --проверка возврата по смещению
---call roll_back_students_by_offset(сам вставь);
+INSERT INTO STUDENTS(name, group_id) VALUES('ИВАН ГОВНОВ', 1);
+DBMS_OUTPUT.PUT_LINE('LOLLIX');
+call rollback_students_by_offset(2);
+SELECT * FROM Students;
+SELECT * FROM Student_journal;
+SELECT * FROM Table1;
 
 DELETE FROM Students;
 DELETE FROM Groupes;
