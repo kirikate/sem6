@@ -7,12 +7,18 @@ int func(int a, int b)
 
 char f()
 {
+    float j;
     return 3.5f;
 }
 
 int main(){
-    char a;
+    char a = '9';
     int b = 7;
+    // func(a, &a);
+    // a = 9;
+    // const int* ptr = &a;
+    //*ptr = 78;
+    // j = 3.5f;
 
     int* name;
     int *name2;
@@ -23,11 +29,12 @@ int main(){
     }
     while (5 || 8 && a || b)
         ++b;
-
-    for (int c = 0; c < 9; ++c){
+    int c =9;
+    for (c = 0; c < 9; ++c){
         ++c;
     }
-    for (int c = 0;;){
+    c=10;
+    for (c = 0;;){
         ++c;
     }
     for (;;){
@@ -39,13 +46,12 @@ int main(){
     else
         --a;
     
-    func(a, b);
     a = func(4, b + 5);
 
     char t = 'a';
     char* str = "str";
     *name2 = (78);
-    int** n = name;
+    // int** n = 34;
 
 
     return a;

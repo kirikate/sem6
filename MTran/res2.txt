@@ -45,6 +45,9 @@ Program
             Args:Body:
             BodyNode
                 Instructions:
+                Declaration
+                    Type: t6
+                    var: v4
                 Return:
                     Return value:
                         CalculatedValue
@@ -57,20 +60,24 @@ Program
                 Instructions:
                 Declaration
                     Type: t1
-                    var: v5
-                Declaration
-                    Type: t0
                     var: v6
                     InitialValue:                     CalculatedValue
                         Value: 
                             Literal
                                 Value: l1
                 Declaration
-                    Type: t8
+                    Type: t0
                     var: v7
+                    InitialValue:                     CalculatedValue
+                        Value: 
+                            Literal
+                                Value: l2
                 Declaration
-                    Type: t8
+                    Type: t15
                     var: v8
+                Declaration
+                    Type: t15
+                    var: v9
                 CalculatedValue
                     Value: 
                         BinarOperator
@@ -79,7 +86,7 @@ Program
                                 CalculatedValue
                                     Value: 
                                         Variable
-                                            Value: v5
+                                            Value: v6
                             Right: 
                                 CalculatedValue
                                     Value: 
@@ -96,12 +103,12 @@ Program
                                                                         CalculatedValue
                                                                             Value: 
                                                                                 Literal
-                                                                                    Value: l2
+                                                                                    Value: l3
                                                                     Right: 
                                                                         CalculatedValue
                                                                             Value: 
                                                                                 Variable
-                                                                                    Value: v6
+                                                                                    Value: v7
                                             Right: 
                                                 CalculatedValue
                                                     Value: 
@@ -118,17 +125,17 @@ Program
                                                                                         CalculatedValue
                                                                                             Value: 
                                                                                                 Literal
-                                                                                                    Value: l3
+                                                                                                    Value: l4
                                                                                     Right: 
                                                                                         CalculatedValue
                                                                                             Value: 
                                                                                                 Literal
-                                                                                                    Value: l4
+                                                                                                    Value: l5
                                                                     Right: 
                                                                         CalculatedValue
                                                                             Value: 
                                                                                 Literal
-                                                                                    Value: l5
+                                                                                    Value: l6
                 While Cycle
                     Condition:
                         CalculatedValue
@@ -144,17 +151,17 @@ Program
                                                         CalculatedValue
                                                             Value: 
                                                                 Literal
-                                                                    Value: l6
+                                                                    Value: l7
                                                     Right: 
                                                         CalculatedValue
                                                             Value: 
                                                                 Literal
-                                                                    Value: l7
+                                                                    Value: l8
                                     Right: 
                                         CalculatedValue
                                             Value: 
                                                 Literal
-                                                    Value: l8
+                                                    Value: l9
                     Body:
                         BodyNode
                             Instructions:
@@ -162,7 +169,7 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v5
+                                        Var: v6
                 While Cycle
                     Condition:
                         CalculatedValue
@@ -173,7 +180,7 @@ Program
                                         CalculatedValue
                                             Value: 
                                                 Literal
-                                                    Value: l9
+                                                    Value: l10
                                     Right: 
                                         CalculatedValue
                                             Value: 
@@ -188,17 +195,17 @@ Program
                                                                         CalculatedValue
                                                                             Value: 
                                                                                 Literal
-                                                                                    Value: l10
+                                                                                    Value: l11
                                                                     Right: 
                                                                         CalculatedValue
                                                                             Value: 
                                                                                 Variable
-                                                                                    Value: v5
+                                                                                    Value: v6
                                                     Right: 
                                                         CalculatedValue
                                                             Value: 
                                                                 Variable
-                                                                    Value: v6
+                                                                    Value: v7
                     Body:
                         BodyNode
                             Instructions:
@@ -206,17 +213,31 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v6
+                                        Var: v7
+                Declaration
+                    Type: t0
+                    var: v10
+                    InitialValue:                     CalculatedValue
+                        Value: 
+                            Literal
+                                Value: l12
                 For Cycle
 
                     Declaration:
-                        Declaration
-                            Type: t0
-                            var: v9
-                            InitialValue:                             CalculatedValue
-                                Value: 
-                                    Literal
-                                        Value: l11
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: =
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                Variable
+                                                    Value: v10
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                Literal
+                                                    Value: l13
                     Condition:
                         CalculatedValue
                             Value: 
@@ -226,18 +247,18 @@ Program
                                         CalculatedValue
                                             Value: 
                                                 Variable
-                                                    Value: v9
+                                                    Value: v10
                                     Right: 
                                         CalculatedValue
                                             Value: 
                                                 Literal
-                                                    Value: l12
+                                                    Value: l14
                     Action:
                         CalculatedValue
                             Value: 
                                 UnarOperator
                                     Operator: o0
-                                    Var: v9
+                                    Var: v10
                     Body:
                         BodyNode
                             Instructions:
@@ -245,17 +266,38 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v9
+                                        Var: v10
+                CalculatedValue
+                    Value: 
+                        BinarOperator
+                            Operator: =
+                            Left: 
+                                CalculatedValue
+                                    Value: 
+                                        Variable
+                                            Value: v10
+                            Right: 
+                                CalculatedValue
+                                    Value: 
+                                        Literal
+                                            Value: l15
                 For Cycle
 
                     Declaration:
-                        Declaration
-                            Type: t0
-                            var: v10
-                            InitialValue:                             CalculatedValue
-                                Value: 
-                                    Literal
-                                        Value: l13
+                        CalculatedValue
+                            Value: 
+                                BinarOperator
+                                    Operator: =
+                                    Left: 
+                                        CalculatedValue
+                                            Value: 
+                                                Variable
+                                                    Value: v10
+                                    Right: 
+                                        CalculatedValue
+                                            Value: 
+                                                Literal
+                                                    Value: l16
                     Body:
                         BodyNode
                             Instructions:
@@ -273,7 +315,7 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v5
+                                        Var: v6
                 If statement
                     Condition:
                         CalculatedValue
@@ -289,12 +331,12 @@ Program
                                                         CalculatedValue
                                                             Value: 
                                                                 Variable
-                                                                    Value: v5
+                                                                    Value: v6
                                                     Right: 
                                                         CalculatedValue
                                                             Value: 
                                                                 Literal
-                                                                    Value: l14
+                                                                    Value: l17
                                     Right: 
                                         CalculatedValue
                                             Value: 
@@ -304,12 +346,12 @@ Program
                                                         CalculatedValue
                                                             Value: 
                                                                 Variable
-                                                                    Value: v6
+                                                                    Value: v7
                                                     Right: 
                                                         CalculatedValue
                                                             Value: 
                                                                 Literal
-                                                                    Value: l15
+                                                                    Value: l18
                     THEN:
                         BodyNode
                             Instructions:
@@ -317,7 +359,7 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v5
+                                        Var: v6
                     ELSE:
                         BodyNode
                             Instructions:
@@ -325,20 +367,7 @@ Program
                                 Value: 
                                     UnarOperator
                                         Operator: o0
-                                        Var: v5
-                CalculatedValue
-                    Value: 
-                        FunctionCallNode
-                            Func: v0 func
-                            Args:
-                                CalculatedValue
-                                    Value: 
-                                        Variable
-                                            Value: v5
-                                CalculatedValue
-                                    Value: 
-                                        Variable
-                                            Value: v6
+                                        Var: v6
                 CalculatedValue
                     Value: 
                         BinarOperator
@@ -347,7 +376,7 @@ Program
                                 CalculatedValue
                                     Value: 
                                         Variable
-                                            Value: v5
+                                            Value: v6
                             Right: 
                                 CalculatedValue
                                     Value: 
@@ -357,7 +386,7 @@ Program
                                                 CalculatedValue
                                                     Value: 
                                                         Literal
-                                                            Value: l16
+                                                            Value: l19
                                                 CalculatedValue
                                                     Value: 
                                                         BinarOperator
@@ -366,26 +395,26 @@ Program
                                                                 CalculatedValue
                                                                     Value: 
                                                                         Variable
-                                                                            Value: v6
+                                                                            Value: v7
                                                             Right: 
                                                                 CalculatedValue
                                                                     Value: 
                                                                         Literal
-                                                                            Value: l17
+                                                                            Value: l20
                 Declaration
                     Type: t1
                     var: v11
                     InitialValue:                     CalculatedValue
                         Value: 
                             Literal
-                                Value: l18
+                                Value: l21
                 Declaration
-                    Type: t7
+                    Type: t14
                     var: v12
                     InitialValue:                     CalculatedValue
                         Value: 
                             Literal
-                                Value: l19
+                                Value: l22
                 CalculatedValue
                     Value: 
                         BinarOperator
@@ -395,24 +424,17 @@ Program
                                     Value: 
                                         UnarOperator
                                             Operator: o3
-                                            Var: v8
+                                            Var: v9
                             Right: 
                                 CalculatedValue
                                     Value: 
                                         CalculatedValue
                                             Value: 
                                                 Literal
-                                                    Value: l20
-                Declaration
-                    Type: t9
-                    var: v13
-                    InitialValue:                     CalculatedValue
-                        Value: 
-                            Variable
-                                Value: v7
+                                                    Value: l23
                 Return:
                     Return value:
                         CalculatedValue
                             Value: 
                                 Variable
-                                    Value: v5
+                                    Value: v6

@@ -207,7 +207,7 @@ SELECT * FROM student_journal;
 --проверка возврата по смещению
 INSERT INTO STUDENTS(name, group_id) VALUES('ИВАН ГОВНОВ', 1);
 DBMS_OUTPUT.PUT_LINE('LOLLIX');
-call rollback_students_by_offset(2);
+call rollback_students_by_offset(1);
 SELECT * FROM Students;
 SELECT * FROM Student_journal;
 SELECT * FROM Table1;

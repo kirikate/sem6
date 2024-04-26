@@ -307,9 +307,19 @@ class ForNode(INode):
 
         i = index + 2
         if tokens[i] is not separatorsDict[";"]:
-            dn = DeclarationNode(self)
-            i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
-            self.declaration = dn
+            if tokens[i] in type_table:
+                dn = DeclarationNode(self)
+                i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                self.declaration = dn
+            else:
+                ind = i
+                while tokens[ind] != separatorsDict[';']:
+                    ind += 1
+                
+                cn = CalculatedValueNode(self, i, ind)
+                cn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                self.declaration = cn
+                i = ind
         i += 1
         if tokens[i] is not separatorsDict[";"]:
             oldI = i
@@ -477,7 +487,7 @@ class GetVariableValueNode(INode):
             if not (
                 tokens[scopeStart] is keywordsDict["for"] or tokens[scopeStart] in vars_table
             ):
-                raise Exception(f"Syntax error at token {index}: Unknown variable")
+                raise Exception(f"Semantic error at token {index}: Unknown variable")
 
         self.variable = tokens[index]
 
@@ -704,7 +714,7 @@ class DeclarationNode(INode):
                     raise Exception(f"Semantic error: declaration init value incorrect type: "+
                                     f"init value type: {t.name}, variable type {self.varType.name}")
             else:
-                if type(t) != self.varType:
+                if t.name != self.varType.name:
                     raise Exception(
                         f"Semantic error: declaration init value incorrect type: "
                         + f"init value type: {t.name}, variable type {self.varType.name}"

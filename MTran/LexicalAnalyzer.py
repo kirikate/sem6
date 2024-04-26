@@ -116,12 +116,13 @@ typeid: int = 0
 
 
 class MyType(IStringable):
-    def __init__(self, name, prior: int):
+    def __init__(self, name, prior: int, isConst=False):
         global typeid
         self.name = name
         self.id = typeid
         typeid += 1
         self.prior = prior
+        self.isConst = isConst
 
     def toString(self, i: int):
         return f"t{self.id}"
@@ -168,12 +169,17 @@ def BinarArithmetic(op: MyOperator, tl: MyType, tr: MyType):
         raise Exception(f"Semantic error: cant {op.symbol} to void on left operand ({tl.name})")
     if tr == find(types, lambda t: t.name == "void"):
         raise Exception(f"Semantic error: cant {op.symbol} to void on right operand ({tr.name})")
+    
+    if op.prior == 15:
+        if tl.isConst:
+            raise Exception(f'Semantic error: attempt to change const value')
 
 
 def UnarArithmetic(op: MyOperator, t: MyType, t2):
     if type(t) == MyPtr:
         return
-
+    if t.isConst:
+        raise Exception(f'Semantic error: Attempt to change const value')
     if find(types, lambda tlamb: tlamb == t) is None:
         raise Exception(f"Semantic error: cant {op.symbol} to left operand type")
 
@@ -192,7 +198,6 @@ keywordsList: list[MyKeyword] = [
     MyKeyword("while"),
     MyKeyword("do"),
     MyKeyword("return"),
-    MyKeyword("const"),
     MyKeyword("switch"),
     MyKeyword("case"),
     MyKeyword("if"),
@@ -222,7 +227,13 @@ types: list[MyType] = [
     MyType("void", -1),
     MyType("double", 0),
     MyType("float", 1),
-
+    MyType("const int", 4, isConst=True),
+    MyType("const char", 6, isConst=True),
+    MyType("const short", 5, isConst=True),
+    MyType("const long", 3, isConst=True),
+    MyType("const void", -1, isConst=True),
+    MyType("const double", 0, isConst=True),
+    MyType("const float", 1, isConst=True),
 ]
 
 literalsPatterns: list[tuple] = [
@@ -325,7 +336,9 @@ def separate(text) -> list[str]:
     # need to check for commas brackets operators
     i: int = 0
     while i < len(res):
-        piece = res[i]
+        if res[i] == "const":
+            res[i] = res[i] + ' ' + res[i+1]
+            res = res[:i+1] + res[i+2:]
 
         tmp = re.findall(separatorsPattern, res[i])
         if tmp:
@@ -397,13 +410,13 @@ def createTables(tokens: list[str]):
             if tokens[i] == "for":
                 isFor = True
             scope_starts.append(i)
-        
+
         if tokens[i] == ')' and isFor:
             scope_starts.pop()
             isFor = False
         if tokens[i] == "}":
             scope_starts.pop()
-    ############################
+        ############################
         isLiteral: bool = False
         # if not keyword operator or literal or sep then identificator
         for t, pattern in literalsPatterns:
@@ -437,17 +450,14 @@ def createTables(tokens: list[str]):
             if not re.match(identifierPattern, tokens[i]):
                 raise Exception(f"Lexical error at token {i}: {tokens[i]}")
 
-
-
             # if new type
             if tokens[i - 1] == "struct":
                 # print("it's new type!!!")
                 index = findInTypeTableByName(type_table, tokens[i])
                 if index == None:
-                    type_table.append(MyType(tokens[i]))
+                    type_table.append(MyType(tokens[i], -1))
+                    type_table.append(MyType('const ' + tokens[i], -1, isConst=True))
             # if ptr
-
-
 
             # print("it's variable!!!")
             # if type before var declaration
@@ -463,6 +473,12 @@ def createTables(tokens: list[str]):
                 i += 1
                 continue
 
+            var = find_var_by_name_and_scope(vars_table, tokens[i], scope_starts[-1])
+
+            if var is not None:
+                if var.scopeStart == scope_starts[-1]:
+                    raise Exception(f'Semantic error at token {i}: double delcaration of var {var.name}')
+
             vars_table.append(
                 VariableTableCell(
                     vars_id_counter,
@@ -475,7 +491,7 @@ def createTables(tokens: list[str]):
         else:
             if isLiteral:
                 literals_table.append(MyLiteral(tokens[i], i))
-        
+
         i += 1
 
     return (type_table, vars_table, literals_table, tokens)
