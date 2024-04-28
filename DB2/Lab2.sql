@@ -48,7 +48,7 @@ INSERT INTO cascad VALUES (1, 0);
 
 --Задание 3
 CREATE OR REPLACE TRIGGER fk_group_delete_cascad
- AFTER DELETE ON Groups
+ AFTER DELETE ON Groupes
  FOR EACH ROW
 BEGIN
     UPDATE cascad SET is_cascad = 1 WHERE id = 1;

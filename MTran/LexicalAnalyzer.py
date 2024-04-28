@@ -201,11 +201,7 @@ keywordsList: list[MyKeyword] = [
     MyKeyword("switch"),
     MyKeyword("case"),
     MyKeyword("if"),
-    MyKeyword("union"),
     MyKeyword("struct"),
-    MyKeyword("signed"),
-    MyKeyword("unsigned"),
-    MyKeyword("default"),
     MyKeyword("else"),
     MyKeyword("#include"),
 ]
@@ -237,9 +233,9 @@ types: list[MyType] = [
 ]
 
 literalsPatterns: list[tuple] = [
-    (find(types, lambda t: t.name == "float"), re.compile("\d+\.\d+")),
-    (find(types, lambda t: t.name == "int"), re.compile("\d+")),
-    (find(types, lambda t: t.name == "char"), re.compile("('.'|'\\[\w0])")),
+    (find(types, lambda t: t.name == "float"), re.compile(r"\d+\.\d+")),
+    (find(types, lambda t: t.name == "int"), re.compile(r"\d+")),
+    (find(types, lambda t: t.name == "char"), re.compile(r"('.'|'\\[\w])")),
     (MyPtr(types, "char*"), re.compile('".*"')),
 ]
 
@@ -261,9 +257,8 @@ operators: list[MyOperator] = [
     MyOperator("&=", 15, verificator=BinarArithmetic),
     MyOperator("|=", 15, verificator=BinarArithmetic),
     MyOperator("=", 15, verificator=BinarArithmetic),
-    MyOperator("&", 3, direction="right", verificator=BinarArithmetic),
+    MyOperator("&", 10, direction="right", verificator=BinarArithmetic),
     MyOperator(".", 2),
-    MyOperator("?", 15),
 ]
 
 operatorsStr: str = "("
@@ -306,7 +301,7 @@ for i in range(len(brackets)):
 
 bracketsPattern = re.compile("(" + bracketsStr + ")")
 
-identifierPattern = re.compile("[A-Za-z_]\w*")
+identifierPattern = re.compile(r"[A-Za-z_]\w*")
 
 
 def separateByMatches(matches, string):
@@ -405,6 +400,7 @@ def createTables(tokens: list[str]):
 
     i = 0
     isFor:bool = False
+    isStruct = False
     while i < len(tokens):
         if tokens[i] == "{" or tokens[i] == "for":
             if tokens[i] == "for":
@@ -416,6 +412,11 @@ def createTables(tokens: list[str]):
             isFor = False
         if tokens[i] == "}":
             scope_starts.pop()
+            if isStruct:
+                isStruct = False
+
+        if tokens[i] == "struct" and scope_starts[-1] == 0:
+            isStruct = True
         ############################
         isLiteral: bool = False
         # if not keyword operator or literal or sep then identificator
@@ -459,7 +460,7 @@ def createTables(tokens: list[str]):
                     type_table.append(MyType('const ' + tokens[i], -1, isConst=True))
             # if ptr
 
-            # print("it's variable!!!")
+            print("it's variable!!!")
             # if type before var declaration
             index = findInTableByName(type_table, tokens[i])
             if index != None:
@@ -478,7 +479,9 @@ def createTables(tokens: list[str]):
             if var is not None:
                 if var.scopeStart == scope_starts[-1]:
                     raise Exception(f'Semantic error at token {i}: double delcaration of var {var.name}')
-
+            if isStruct:
+                i += 1
+                continue
             vars_table.append(
                 VariableTableCell(
                     vars_id_counter,
@@ -578,12 +581,30 @@ def change_to_ids(
                     poped = scope_starts[br.symbols].pop()
                     br.close(poped, i)
                     new_tokens[i] = br
-
+        
     return new_tokens
+
+
+def clearStupidStructs(tokens) -> str:
+    i: int = 0
+    scope_start: list[int] = [0]
+    print(len(tokens))
+    while i < len(tokens):
+        if tokens[i] == 'struct' and scope_start[-1] != 0:
+            tokens = tokens[:i] + tokens[i+1:]
+        if tokens[i] == '{':
+            scope_start.append(i)
+        if tokens[i] == '}':
+            scope_start.pop()
+        i += 1
+        print(i)
+    
+    return tokens
 
 
 def analyze(text: str):
     tokens = separate(text)
+    tokens = clearStupidStructs(tokens)
     i = 0
     for token in tokens:
         print(f'{i} {token}')

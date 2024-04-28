@@ -11,9 +11,19 @@ char f()
     return 3.5f;
 }
 
+struct MyStruct
+{
+    int a;
+    float b;
+};
+
 int main(){
     char a = '9';
     int b = 7;
+    struct MyStruct obj;
+    obj.a = 56;
+    (&obj)->b = 3.89;
+    b = obj.a + 6;
     // func(a, &a);
     // a = 9;
     // const int* ptr = &a;

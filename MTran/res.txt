@@ -32,11 +32,22 @@ k3  ==  return
 l0  ==  3.5f
 s0  ==  ;
 b2c24  ==  }
+k7  ==  struct
+t15  ==  MyStruct
+b2o34  ==  {
+t0  ==  int
+v1  ==  a
+s0  ==  ;
+t6  ==  float
+v2  ==  b
+s0  ==  ;
+b2c34  ==  }
+s0  ==  ;
 t0  ==  int
 v5  ==  main
-b0o34  ==  (
-b0c34  ==  )
-b2o36  ==  {
+b0o45  ==  (
+b0c45  ==  )
+b2o47  ==  {
 t1  ==  char
 v6  ==  a
 o16  ==  =
@@ -47,155 +58,181 @@ v7  ==  b
 o16  ==  =
 l2  ==  7
 s0  ==  ;
-t15  ==  int*
-v8  ==  name
+t15  ==  MyStruct
+v8  ==  obj
 s0  ==  ;
-t15  ==  int*
-v9  ==  name2
+v8  ==  obj
+o18  ==  .
+v6  ==  a
+o16  ==  =
+l3  ==  56
+s0  ==  ;
+b0o67  ==  (
+o17  ==  &
+v8  ==  obj
+b0c67  ==  )
+o2  ==  ->
+v7  ==  b
+o16  ==  =
+l4  ==  3.89
+s0  ==  ;
+v7  ==  b
+o16  ==  =
+v8  ==  obj
+o18  ==  .
+v6  ==  a
+o5  ==  +
+l5  ==  6
+s0  ==  ;
+t17  ==  int*
+v9  ==  name
+s0  ==  ;
+t17  ==  int*
+v10  ==  name2
 s0  ==  ;
 v6  ==  a
 o16  ==  =
-b0o55  ==  (
-l3  ==  7
+b0o92  ==  (
+l6  ==  7
 o5  ==  +
 v7  ==  b
-b0c55  ==  )
+b0c92  ==  )
 o3  ==  *
-b0o61  ==  (
-l4  ==  3
+b0o98  ==  (
+l7  ==  3
 o4  ==  /
-l5  ==  8
+l8  ==  8
 o5  ==  +
-l6  ==  7
-b0c61  ==  )
+l9  ==  7
+b0c98  ==  )
 s0  ==  ;
 k1  ==  while
-b0o70  ==  (
-l7  ==  56
+b0o107  ==  (
+l10  ==  56
 o7  ==  -
-l8  ==  7
+l11  ==  7
 o9  ==  >
-l9  ==  8
-b0c70  ==  )
-b2o77  ==  {
+l12  ==  8
+b0c107  ==  )
+b2o114  ==  {
 o0  ==  ++
 v6  ==  a
 s0  ==  ;
-b2c77  ==  }
+b2c114  ==  }
 k1  ==  while
-b0o83  ==  (
-l10  ==  5
+b0o120  ==  (
+l13  ==  5
 o13  ==  ||
-l11  ==  8
+l14  ==  8
 o12  ==  &&
 v6  ==  a
 o13  ==  ||
 v7  ==  b
-b0c83  ==  )
+b0c120  ==  )
 o0  ==  ++
 v7  ==  b
 s0  ==  ;
 t0  ==  int
-v10  ==  c
+v11  ==  c
 o16  ==  =
-l12  ==  9
+l15  ==  9
 s0  ==  ;
 k0  ==  for
-b0o101  ==  (
-v10  ==  c
-o16  ==  =
-l13  ==  0
-s0  ==  ;
-v10  ==  c
-o8  ==  <
-l14  ==  9
-s0  ==  ;
-o0  ==  ++
-v10  ==  c
-b0c101  ==  )
-b2o113  ==  {
-o0  ==  ++
-v10  ==  c
-s0  ==  ;
-b2c113  ==  }
-v10  ==  c
-o16  ==  =
-l15  ==  10
-s0  ==  ;
-k0  ==  for
-b0o123  ==  (
-v10  ==  c
+b0o138  ==  (
+v11  ==  c
 o16  ==  =
 l16  ==  0
 s0  ==  ;
+v11  ==  c
+o8  ==  <
+l17  ==  9
 s0  ==  ;
-b0c123  ==  )
-b2o130  ==  {
 o0  ==  ++
-v10  ==  c
+v11  ==  c
+b0c138  ==  )
+b2o150  ==  {
+o0  ==  ++
+v11  ==  c
 s0  ==  ;
-b2c130  ==  }
+b2c150  ==  }
+v11  ==  c
+o16  ==  =
+l18  ==  10
+s0  ==  ;
 k0  ==  for
-b0o136  ==  (
+b0o160  ==  (
+v11  ==  c
+o16  ==  =
+l19  ==  0
 s0  ==  ;
 s0  ==  ;
-b0c136  ==  )
-b2o140  ==  {
+b0c160  ==  )
+b2o167  ==  {
+o0  ==  ++
+v11  ==  c
+s0  ==  ;
+b2c167  ==  }
+k0  ==  for
+b0o173  ==  (
+s0  ==  ;
+s0  ==  ;
+b0c173  ==  )
+b2o177  ==  {
 o0  ==  ++
 v6  ==  a
 s0  ==  ;
-b2c140  ==  }
+b2c177  ==  }
 k6  ==  if
-b0o146  ==  (
+b0o183  ==  (
 v6  ==  a
 o9  ==  >
-l17  ==  9
+l20  ==  9
 o13  ==  ||
 v7  ==  b
 o8  ==  <
-l18  ==  7
-b0c146  ==  )
-b2o155  ==  {
+l21  ==  7
+b0c183  ==  )
+b2o192  ==  {
 o0  ==  ++
 v6  ==  a
 s0  ==  ;
-b2c155  ==  }
-k12  ==  else
+b2c192  ==  }
+k8  ==  else
 o1  ==  --
 v6  ==  a
 s0  ==  ;
 v6  ==  a
 o16  ==  =
 v0  ==  func
-b0o167  ==  (
-l19  ==  4
+b0o204  ==  (
+l22  ==  4
 s1  ==  ,
 v7  ==  b
 o5  ==  +
-l20  ==  5
-b0c167  ==  )
+l23  ==  5
+b0c204  ==  )
 s0  ==  ;
 t1  ==  char
-v11  ==  t
+v12  ==  t
 o16  ==  =
-l21  ==  'a'
+l24  ==  'a'
 s0  ==  ;
 t14  ==  char*
-v12  ==  str
+v13  ==  str
 o16  ==  =
-l22  ==  "str"
+l25  ==  "str"
 s0  ==  ;
 o3  ==  *
-v9  ==  name2
+v10  ==  name2
 o16  ==  =
-b0o188  ==  (
-l23  ==  78
-b0c188  ==  )
+b0o225  ==  (
+l26  ==  78
+b0c225  ==  )
 s0  ==  ;
 k3  ==  return
 v6  ==  a
 s0  ==  ;
-b2c36  ==  }
+b2c47  ==  }
 
 -------------
 
@@ -216,7 +253,9 @@ table of types(t):
 12 const double
 13 const float
 14 char*
-15 int*
+15 MyStruct
+16 const MyStruct
+17 int*
 
 -------------
 
@@ -228,13 +267,14 @@ table of vars(v):
 3 f char 0
 4 j float 24
 5 main int 0
-6 a char 36
-7 b int 36
-8 name int* 36
-9 name2 int* 36
-10 c int 36
-11 t char 36
-12 str char* 36
+6 a char 47
+7 b int 47
+8 obj MyStruct 47
+9 name int* 47
+10 name2 int* 47
+11 c int 47
+12 t char 47
+13 str char* 47
 
 -------------
 
@@ -243,27 +283,30 @@ table of literals(l):
 0 float 3.5f
 1 char '9'
 2 int 7
-3 int 7
-4 int 3
-5 int 8
+3 int 56
+4 float 3.89
+5 int 6
 6 int 7
-7 int 56
-8 int 7
-9 int 8
-10 int 5
-11 int 8
-12 int 9
-13 int 0
-14 int 9
-15 int 10
+7 int 3
+8 int 8
+9 int 7
+10 int 56
+11 int 7
+12 int 8
+13 int 5
+14 int 8
+15 int 9
 16 int 0
 17 int 9
-18 int 7
-19 int 4
-20 int 5
-21 char 'a'
-22 char* "str"
-23 int 78
+18 int 10
+19 int 0
+20 int 9
+21 int 7
+22 int 4
+23 int 5
+24 char 'a'
+25 char* "str"
+26 int 78
 
 -------------
 
@@ -276,13 +319,9 @@ table of keywords(k):
 4 switch
 5 case
 6 if
-7 union
-8 struct
-9 signed
-10 unsigned
-11 default
-12 else
-13 #include
+7 struct
+8 else
+9 #include
 
 -------------
 
@@ -322,4 +361,3 @@ table of operators(o):
 16 =
 17 &
 18 .
-19 ?

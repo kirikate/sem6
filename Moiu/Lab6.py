@@ -111,13 +111,13 @@ def quadratic_method(int_m: int, int_n: int, matrix_a: np.matrix, matrix_d: np.m
                     if vector.item(int_s) != 0:
                         j_plus = j
                         break
-            if j_plus != -1:
+            if j_plus != -1:    # существует (в опоре ограничений меняем а из расиширенной удаляем j*)
                 print("Case #3")
                 index_list[int_s] = j_plus
                 index_list.sort()
                 index_list_star = np.delete(index_list_star, np.argwhere(index_list_star == j_star)[0][0])
             if j_plus == -1 or index_list == index_list_star:
-                print("Case #4")
+                print("Case #4")   # для любого (заменяем в обоих)
                 index_list[int_s] = j_0
                 index_list.sort()
                 index_list_star[int_s] = j_0

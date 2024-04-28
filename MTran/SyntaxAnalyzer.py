@@ -502,6 +502,47 @@ class GetVariableValueNode(INode):
             tab += "    "
         return f"{tab}Variable\n{tab}    Value: {self.variable.toString(i)}"
 
+class FieldAccessNode (INode):
+    def __init__(self, parent, begin, end, isPtr):
+        super().__init__(parent)
+        self.isPtr = isPtr
+        self.obj: CalculatedValueNode = None
+        self.fieldName:str = None
+        self.begin = begin
+        self.end = end
+
+    def buildTree(self, tokens: list[IStringable], index: int, type_table: list[MyType], vars_table: list[VariableTableCell], literals_table: list[MyLiteral]) -> int:
+        print(f'begin: {self.begin} end: {self.end} index: {index}')
+        cn = CalculatedValueNode(self, self.begin, index)
+        cn.buildTree(tokens, self.begin, type_table, vars_table, literals_table)
+
+        self.obj = cn
+        self.fieldName = tokens[index + 1].name
+
+        return index + 1
+
+    def toString(self, i):
+        tab: str = ""
+        for ind in range(i):
+            tab += "    "
+
+        return f"{tab}FieldAccess:\n{tab}    Name: {self.fieldName}\n{tab}    Object:\n{self.obj.toString(i+2)}"
+
+    def ValidateTypes(self) -> MyType:
+        objt = self.obj.ValidateTypes()
+        if (type(objt) == MyPtr) != self.isPtr:
+            raise Exception(f'Semantic error: you acces to field of pointer error')
+        if(type(objt) == MyPtr):
+            if objt.level != 1:
+                raise Exception(f'Semantic error: Pointer level error')
+        objt = objt if type(objt) != MyPtr else objt.pointersTo
+        program:Program = self.getRoot()
+        fields = program.structs[objt.name].fields
+        print([f[1] for f in fields])
+        if self.fieldName not in [f[1] for f in fields]:
+            raise Exception(f'Semantic error: There is no field {self.fieldName} in {objt.name} type')
+
+        return find(fields, lambda tpl: tpl[1] == self.fieldName)[0]
 
 # NEED to know its boundaries
 class CalculatedValueNode(INode):
@@ -566,6 +607,19 @@ class CalculatedValueNode(INode):
                 i = tokens[i].openClose[i]
 
             i += 1
+        if currentPrior == 2:
+            flag = False
+            pos = index
+            for j in range(self.begin, self.end):
+                if tokens[j] == operatorsDict['->'] or tokens[j] == operatorsDict['.']:
+                    flag = True
+                    pos = j
+                if flag:
+                    fn = FieldAccessNode(self, self.begin, self.end, True if tokens[pos] == operatorsDict["->"] else False)
+                    fn.buildTree(tokens, pos, type_table, vars_table, literals_table)
+                    self.value = fn
+                    return self.end
+
 
         if currentPrior == 0:
             if index + 1 != self.end:
@@ -584,7 +638,6 @@ class CalculatedValueNode(INode):
                 vn = GetVariableValueNode(self)
                 vn.buildTree(tokens, index, type_table, vars_table, literals_table)
                 self.value = vn
-
         elif tokens[currentPriorOperatorIndex] in operators:
             op = find(operators, lambda op: op == tokens[currentPriorOperatorIndex])
             if op.argCount == "unar":
@@ -982,6 +1035,43 @@ class FunctionCallNode(INode):
         return res
 
 
+class StructNode(INode):
+    def __init__(self, parent: INode):
+        super().__init__(parent)
+        self.Name:str|None = None
+        self.fields = list()
+
+    def buildTree(self, tokens: list[IStringable], index: int, type_table: list[MyType], 
+                  vars_table: list[VariableTableCell], literals_table: list[MyLiteral]) -> int:
+        mytyp: MyType = tokens[index+1]
+        self.Name = mytyp.name
+        end = bracketsdict['{}'].openClose[index+2]
+
+        pos = index + 3
+
+        while pos < end:
+            if type(tokens[pos]) is not MyType:
+                raise Exception(f"Syntax error at token {pos}: type expected")
+
+            if tokens[pos + 2] is not separatorsDict[';']:
+                raise Exception(f'Syntax error at token {pos + 2}: ; expected')       
+            
+            self.fields.append((tokens[pos], tokens[pos+1].name))
+            pos += 3
+
+        return end
+
+    def toString(self, i: int):
+        tab: str = ""
+        for ind in range(i):
+            tab += "    "
+        
+        res = f"{tab}StructName: {self.Name}:"
+        for t, n in self.fields:
+            res += f'\n{tab}    {t.name} {n}'
+
+        return res
+
 class Program(INode):
     def __init__(
         self,
@@ -994,6 +1084,7 @@ class Program(INode):
         self.functions = dict[str, FunctionNode]()
         self.variables = dict[str, DeclarationNode]()
         self.parent = None
+        self.structs = dict[str, StructNode]()
 
         i: int = 0
         while i < len(tokens):
@@ -1011,9 +1102,16 @@ class Program(INode):
                     dn = DeclarationNode(self)
                     i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
                     self.variables[name] = dn
+            elif tokens[i] is keywordsDict['struct']:
+                sn = StructNode(self)
+                i = sn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                self.structs[sn.Name] = sn
+                i += 1
+                if tokens[i] is not separatorsDict[';']:
+                    raise Exception(f"Syntax error at token {i}: ; expected")
             else:
                 raise Exception(
-                    "Error at token i: On;y function declarations, global variables and include directives can be in global scope"
+                    "Error at token i: Only function declarations, global variables and include directives can be in global scope"
                 )
             i += 1
 
@@ -1031,7 +1129,9 @@ class Program(INode):
         res = f"Program\n    Global Variables:"
         for var in self.variables.items():
             res += f"\n{var[1].toString(2)}"
-
+        res += f'\n    Structs:'
+        for name, node in self.structs.items():
+            res += f'\n{node.toString(2)}'
         res += f"\n    Functions:"
         for f in self.functions.items():
             res += f"\n{f[1].toString(2)}"
