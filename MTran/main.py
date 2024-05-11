@@ -12,6 +12,7 @@ if __name__ == "__main__":
     (tokens, type_table, vars_table, literals_table) = analyze(text)
     program = Program(tokens, type_table, vars_table, literals_table)
     program.ValidateTypes()
+    program.execute()
     tostr = program.toString(0)
     file = open("res2.txt", "w")
     file.truncate()

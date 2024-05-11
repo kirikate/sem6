@@ -95,7 +95,8 @@ operatorsCountId = 0
 # arg count: unar, binar, ternar
 class MyOperator(IStringable):
     def __init__(
-        self, symbol: str, prior: int, argCount: str = "binar", direction: str = None, verificator = None
+        self, symbol: str, prior: int, argCount: str = "binar", direction: str = None, verificator = None,
+        handler = None
     ):
         global operatorsCountId
 
@@ -107,6 +108,7 @@ class MyOperator(IStringable):
         self.direction = direction
         self.verificator = verificator
         operatorsCountId += 1
+        self.handler = None
 
     def toString(self, i: int):
         return f"o{self.id}"
@@ -116,6 +118,7 @@ typeid: int = 0
 
 
 class MyType(IStringable):
+    # def __init__(self, name, prior: int, size:int, isConst=False):
     def __init__(self, name, prior: int, isConst=False):
         global typeid
         self.name = name
@@ -123,6 +126,7 @@ class MyType(IStringable):
         typeid += 1
         self.prior = prior
         self.isConst = isConst
+        # self.size = size
 
     def toString(self, i: int):
         return f"t{self.id}"
@@ -152,8 +156,18 @@ class MyLiteral(IStringable):
 
         for t, p in literalsPatterns:
             if p.match(text):
-                self.mytype = t
+                self.mytype: MyType = t
                 break
+        
+        if self.mytype.name == 'char*':
+            self.value = self.text[1:-1]
+            self.value += chr(0)
+        if self.mytype.name == 'char':
+            self.value = self.text[1:-1]
+        if self.mytype.name == 'int':
+            self.value = int(self.text)
+        if self.mytype.name == 'float':
+            self.value = float(self.text)
 
     def toString(self, i: int):
         return f"l{self.id}"
@@ -229,37 +243,59 @@ types: list[MyType] = [
     MyType("const long", 3, isConst=True),
     MyType("const void", -1, isConst=True),
     MyType("const double", 0, isConst=True),
-    MyType("const float", 1, isConst=True),
+    MyType("const float", 1,  isConst=True),
 ]
 
 literalsPatterns: list[tuple] = [
     (find(types, lambda t: t.name == "float"), re.compile(r"\d+\.\d+")),
     (find(types, lambda t: t.name == "int"), re.compile(r"\d+")),
-    (find(types, lambda t: t.name == "char"), re.compile(r"('.'|'\\[\w])")),
+    (find(types, lambda t: t.name == "char"), re.compile(r"('.'|'\[\w])")),
     (MyPtr(types, "char*"), re.compile('".*"')),
 ]
 
 operators: list[MyOperator] = [
-    MyOperator("++", 2, argCount="unar", direction="both", verificator=UnarArithmetic),
-    MyOperator("--", 2, argCount="unar", direction="both", verificator=UnarArithmetic),
+    MyOperator(
+        "++",
+        2,
+        argCount="unar",
+        direction="both",
+        verificator=UnarArithmetic,
+        handler=lambda x: x + 1,
+    ),
+    MyOperator(
+        "--",
+        2,
+        argCount="unar",
+        direction="both",
+        verificator=UnarArithmetic,
+        handler=lambda x: x - 1,
+    ),
     MyOperator("->", 2, argCount="unar", direction="right"),
-    MyOperator("*", 5, direction="right", verificator=BinarArithmetic),
-    MyOperator("/", 5, verificator=BinarArithmetic),
-    MyOperator("+", 6, verificator=BinarArithmetic),
-    MyOperator("==", 9, verificator=BinarArithmetic),
-    MyOperator("-", 6, verificator=BinarArithmetic),
-    MyOperator("<", 8, verificator=BinarArithmetic),
-    MyOperator(">", 8, verificator=BinarArithmetic),
-    MyOperator("<=", 8, verificator=BinarArithmetic),
-    MyOperator(">=", 8, verificator=BinarArithmetic),
-    MyOperator("&&", 13, verificator=BinarArithmetic),
-    MyOperator("||", 14, verificator=BinarArithmetic),
-    MyOperator("&=", 15, verificator=BinarArithmetic),
-    MyOperator("|=", 15, verificator=BinarArithmetic),
+    MyOperator(
+        "*",
+        5,
+        direction="right",
+        verificator=BinarArithmetic,
+        handler=lambda x, y: x * y,
+    ),
+    MyOperator("/", 5, verificator=BinarArithmetic, handler=lambda x, y: x / y),
+    MyOperator("+", 6, verificator=BinarArithmetic, handler=lambda x, y: x + y),
+    MyOperator("==", 9, verificator=BinarArithmetic, handler=lambda x, y: x == y),
+    MyOperator("-", 6, verificator=BinarArithmetic, handler=lambda x, y: x - y),
+    MyOperator("<", 8, verificator=BinarArithmetic, handler=lambda x, y: x < y),
+    MyOperator(">", 8, verificator=BinarArithmetic, handler=lambda x, y: x > y),
+    MyOperator("<=", 8, verificator=BinarArithmetic, handler=lambda x, y: x <= y),
+    MyOperator(">=", 8, verificator=BinarArithmetic, handler=lambda x, y: x >= y),
+    MyOperator("&&", 13, verificator=BinarArithmetic, handler=lambda x, y: x and y),
+    MyOperator("||", 14, verificator=BinarArithmetic, handler=lambda x, y: x or y),
+    MyOperator("&=", 15, verificator=BinarArithmetic, handler=lambda x, y: x and y),
+    MyOperator("|=", 15, verificator=BinarArithmetic, handler=lambda x, y: x or y),
     MyOperator("=", 15, verificator=BinarArithmetic),
-    MyOperator("&", 10, direction="right", verificator=BinarArithmetic),
+    MyOperator("&", 10, direction="right", verificator=BinarArithmetic, handler=lambda x,y : x&y),
     MyOperator(".", 2),
+    MyOperator("%", 5)
 ]
+
 
 operatorsStr: str = "("
 ttmp: str = ""
@@ -678,4 +714,39 @@ def clearComments(text: str) -> str:
             continue
         new_text += text[i]
         i += 1
+
+    sub = new_text.find("#include")
+    while sub != -1:
+        newline = new_text[sub:].find("\n") + sub + 1
+        new_text = new_text[0:sub] + new_text[newline:]
+        sub = new_text.find("#include")
+
+    sub = new_text.find('printf')
+    while sub != -1:
+        newline = new_text[sub:].find("\n") + sub + 1
+        new_text = new_text[0:sub] + new_text[newline+1:]
+        sub = new_text.find("printf")
+
+    sub = new_text.find('malloc')
+    while sub != -1:
+        pos = sub + 1
+        st = 0
+        flag = True
+        while st != 0 or flag:
+            print(new_text[pos])
+            if new_text[pos] == '(':
+                flag = False
+                st+=1
+            if new_text[pos] == ')':
+                st -= 1
+            pos += 1
+        new_text = new_text[:sub - 1] + new_text[pos -1:]
+        sub = new_text.find('malloc')
+
+    sub = new_text.find("free")
+    while sub != -1:
+        newline = new_text[sub:].find("\n") + sub + 1
+        new_text = new_text[0:sub] + new_text[newline + 1 :]
+        sub = new_text.find("free")
+
     return new_text

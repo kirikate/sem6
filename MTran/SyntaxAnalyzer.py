@@ -1,6 +1,10 @@
 from LexicalAnalyzer import *
 from LexicalAnalyzer import IStringable, MyLiteral, MyType, VariableTableCell
 
+import os
+
+import struct
+
 keywordsDict = {kw.word: kw for kw in keywordsList}
 bracketsdict = {br.symbols: br for br in brackets}
 separatorsDict = {s.symbol: s for s in separators}
@@ -10,7 +14,8 @@ class INode(IStringable):
     def __init__(self, parent):
         self.parent: INode = parent
 
-    def execute(self):
+    def execute(self, stack:bytearray, heap:bytearray, 
+                variables: list[tuple[VariableTableCell, int]], literals: list[tuple[MyLiteral, int]]):
         pass
 
     # returns index of last scanned token
@@ -104,6 +109,19 @@ class UnarOperatorNode(INode):
             tab += "    "
         return f"{tab}UnarOperator\n{tab}    Operator: {self.operator.toString(i)}\n{tab}    Var: {self.variable.toString(i)}"
 
+    def execute(
+        self,
+        stack: bytearray,
+        heap: bytearray,
+        variables: list[tuple[VariableTableCell, int]],
+        literals: list[tuple[MyLiteral, int]],
+    ):
+        lres = self.left.execute(stack, heap, variables, literals)
+        l = readValueAtAddr(stack, lres, self.left.ValidateTypes())
+
+        res = self.operator.handler(l)
+        return res
+
 
 class BinarOperatorNode(INode):
     def __init__(self, parent: INode, operator: MyOperator, begin: int, end: int):
@@ -131,7 +149,7 @@ class BinarOperatorNode(INode):
         self.right = rcn
 
         return self.end
-    
+
     def ValidateTypes(self) -> MyType:
         tl = self.left.ValidateTypes()
         tr = self.right.ValidateTypes()
@@ -144,13 +162,25 @@ class BinarOperatorNode(INode):
                 return tr
         else:
             return tr
-    
+
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
             tab += "    "
         return f"{tab}BinarOperator\n{tab}    Operator: {self.operator.symbol}\n{tab}    Left: \n{self.left.toString(i+2)}\n{tab}    Right: \n{self.right.toString(i+2)}"
+    def execute(self, stack: bytearray, heap: bytearray, variables: list[tuple[VariableTableCell, int]], literals: list[tuple[MyLiteral, int]]):
+        lres = self.left.execute(stack, heap, variables, literals)
+        l = readValueAtAddr(stack, lres, self.left.ValidateTypes())
+        r = readValueAtAddr(
+            stack,
+            self.right.execute(stack, heap, variables, literals),
+            self.right.ValidateTypes(),
+        )
 
+        res = self.operator.handler(l,r)
+        if self.operator.prior == 15:
+            writeValueAtAddr(stack, lres, res, self.ValidateTypes())
+        return res
 
 class GetLiteralValueNode(INode):
     def __init__(self, parent):
@@ -178,7 +208,9 @@ class GetLiteralValueNode(INode):
         for ind in range(i):
             tab += "    "
         return f"{tab}Literal\n{tab}    Value: {self.literal.toString(i)}"
-
+    
+    def execute(self, stack: bytearray, heap: bytearray, variables: list[tuple[VariableTableCell, int]], literals: list[tuple[MyLiteral, int]]):
+        return readValueAtAddr(stack, find(literals, lambda l: l[0] == self.literal))
 
 class ReturnNode(INode):
     def __init__(self, parent):
@@ -278,6 +310,43 @@ class WhileNode(INode):
             tab += "    "
 
         return f"{tab}While Cycle\n{tab}    Condition:\n{self.condition.toString(i + 2)}\n{tab}    Body:\n{self.body.toString(i+2)}"
+    
+    def execute(self, stack: bytearray, heap: bytearray, variables: list[tuple[VariableTableCell, int]], literals: list[tuple[MyLiteral, int]]):
+        res = self.condition.execute(stack, heap, variables, literals)
+        while res:
+            self.body.execute(stack, heap, variables, literals)
+            res = self.condition.execute(stack, heap, variables, literals)
+
+class BreakNode(INode):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def buildTree(self, tokens: list[IStringable], index: int, type_table: list[MyType], vars_table: list[VariableTableCell], literals_table: list[MyLiteral]) -> int:
+        if (
+            tokens[index + 1] is not bracketsdict["()"]
+            or index + 1 not in bracketsdict["()"].openClose.keys()
+        ):
+            raise Exception(
+                f"Syntax error at token {index+1}: Loop brackets are incorrect"
+            )
+
+        i = index + 2
+        if tokens[i] is not separatorsDict[";"]:
+            if tokens[i] in type_table:
+                dn = DeclarationNode(self)
+                i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                self.declaration = dn
+            else:
+                ind = i
+                while tokens[ind] != separatorsDict[';']:
+                    ind += 1
+                
+                cn = CalculatedValueNode(self, i, ind)
+                cn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                self.declaration = cn
+                i = ind
+        i += 1
+        return i
 
 
 class ForNode(INode):
@@ -315,7 +384,7 @@ class ForNode(INode):
                 ind = i
                 while tokens[ind] != separatorsDict[';']:
                     ind += 1
-                
+
                 cn = CalculatedValueNode(self, i, ind)
                 cn.buildTree(tokens, i, type_table, vars_table, literals_table)
                 self.declaration = cn
@@ -357,10 +426,10 @@ class ForNode(INode):
         self.body.ValidateTypes()
         if self.condition:
             self.condition.ValidateTypes()
-        
+
         if self.declaration:
             self.declaration.ValidateTypes()
-        
+
         if self.action:
             self.action.ValidateTypes()
 
@@ -379,6 +448,12 @@ class ForNode(INode):
 
         res += f"\n{tab}    Body:\n{self.body.toString(i+2)}"
         return res
+
+    def execute(self, stack: bytearray, heap: bytearray, variables: list[tuple[VariableTableCell, int]], literals: list[tuple[MyLiteral, int]]):
+        res = self.condition.execute(stack, heap, variables, literals)
+        while res:
+            self.body.execute(stack, heap, variables, literals)
+            res = self.condition.execute(stack, heap, variables, literals)
 
 
 class IfNode(INode):
@@ -462,6 +537,13 @@ class IfNode(INode):
             res += f"\n{tab}    ELSE:\n{self.thenBody.toString(i+2)}"
 
         return res
+    
+    def execute(self, stack, heap, variables, literals):
+        res = self.condition.execute(stack, heap, variables)
+        if res:
+            return self.thenBody.execute(stack, heap, variables, literals)
+        else:
+            return self.elseBody.execute(stack, heap, variables, literals)
 
 
 class GetVariableValueNode(INode):
@@ -501,6 +583,11 @@ class GetVariableValueNode(INode):
         for ind in range(i):
             tab += "    "
         return f"{tab}Variable\n{tab}    Value: {self.variable.toString(i)}"
+    
+    def execute(self, stack, heap, variables, literals):
+        res = find(variables, lambda v: v[0] == self.variable)[1]
+        res = readValueAtAddr(stack, res, self.variable.mytype.size)
+        writeValueAtAddr(stack, len(stack), res, self.variable.mytype)
 
 class FieldAccessNode (INode):
     def __init__(self, parent, begin, end, isPtr):
@@ -510,6 +597,7 @@ class FieldAccessNode (INode):
         self.fieldName:str = None
         self.begin = begin
         self.end = end
+        self.mytype = None
 
     def buildTree(self, tokens: list[IStringable], index: int, type_table: list[MyType], vars_table: list[VariableTableCell], literals_table: list[MyLiteral]) -> int:
         print(f'begin: {self.begin} end: {self.end} index: {index}')
@@ -518,7 +606,7 @@ class FieldAccessNode (INode):
 
         self.obj = cn
         self.fieldName = tokens[index + 1].name
-
+        self.structName: str = None
         return index + 1
 
     def toString(self, i):
@@ -536,6 +624,7 @@ class FieldAccessNode (INode):
             if objt.level != 1:
                 raise Exception(f'Semantic error: Pointer level error')
         objt = objt if type(objt) != MyPtr else objt.pointersTo
+        self.structName = objt.name
         program:Program = self.getRoot()
         fields = program.structs[objt.name].fields
         print([f[1] for f in fields])
@@ -543,6 +632,19 @@ class FieldAccessNode (INode):
             raise Exception(f'Semantic error: There is no field {self.fieldName} in {objt.name} type')
 
         return find(fields, lambda tpl: tpl[1] == self.fieldName)[0]
+    
+    def execute(self, stack, heap, variables, literals):
+        program: Program = self.getRoot()
+        sn = program.structs[self.structName]
+        shift = 0
+        for t, n in sn.fields:
+            if n != self.fieldName:
+                shift += t.size 
+            else:
+                break
+        res = self.obj.execute()
+        return res + shift
+
 
 # NEED to know its boundaries
 class CalculatedValueNode(INode):
@@ -705,6 +807,9 @@ class CalculatedValueNode(INode):
     def ValidateTypes(self) -> MyType:
         return self.value.ValidateTypes()
 
+    def execute(self, stack: bytearray, heap: bytearray, variables: list[tuple[VariableTableCell, int]], 
+                literals: list[tuple[VariableTableCell, int]]):
+        return self.value.execute()
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -726,7 +831,7 @@ class DeclarationNode(INode):
         literals_table: list[MyLiteral],
     ) -> int:
         i = index
-        self.varType = tokens[i]
+        self.varType:MyType = tokens[i]
         i += 1
 
         if not isinstance(tokens[i], VariableTableCell):
@@ -756,9 +861,6 @@ class DeclarationNode(INode):
     def getVariable(self, name: str):
         return self.parent.getVariable(name)
 
-    def execute(self):
-        pass
-
     def ValidateTypes(self) -> MyType:
         if self.initialValue:
             t = self.initialValue.ValidateTypes()
@@ -782,6 +884,18 @@ class DeclarationNode(INode):
             res += f"\n{tab}    InitialValue: {self.initialValue.toString(i + 1)}"
 
         return res
+    
+    def execute(self, stack:bytearray, heap:bytearray, variables: list[tuple[VariableTableCell, int]], 
+                literals: list[tuple[VariableTableCell, int]]):
+        addr = len(stack)
+        stack.append([0 for i in range(self.varType.size)])
+        if self.initialValue is not None:
+            res = self.initialValue.execute()
+            resType = self.initialValue.ValidateTypes()
+            if resType != self.varType:
+                res = convert(res, resType, self.varType)
+            writeValueAtAddr(stack, addr, res, self.varType)
+        variables.append((self, addr))
 
 
 class BodyNode(INode):
@@ -845,6 +959,25 @@ class BodyNode(INode):
         for instruction in self.instructions:
             instruction.ValidateTypes()
 
+    def execute(
+        self,
+        stack: bytearray,
+        heap: bytearray,
+        variables: list[tuple[VariableTableCell, int]],
+        literals: list[tuple[VariableTableCell, int]]
+    ):
+        start = len(stack)
+        varcount = len(variables)
+        for line in self.instructions:
+            if type(line) == ReturnNode:
+                res = line.execute(stack, heap, variables, literals)
+                stack = stack[:start]
+                return res
+            line.execute(stack, heap, variables, literals)
+        start = stack[:start]
+        variables = variables[:varcount]
+        return None
+
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -855,7 +988,11 @@ class BodyNode(INode):
 
         return res
 
-
+def doChecks():
+    res = os.system("gcc -o D:/secret/a.exe test.c")
+    res = os.system("D:/secret/a.exe")
+    return res
+    
 class ArgumentDeclaration(INode):
     def __init__(self, parent: INode, scopeStart: int):
         super().__init__(parent)
@@ -950,6 +1087,13 @@ class FunctionNode(INode):
     def ValidateTypes(self) -> MyType:
         self.body.ValidateTypes()
 
+    def execute(self, stack:bytearray, heap:bytearray, variables: list[tuple[VariableTableCell, int]], 
+                literals: list[tuple[MyLiteral, int]]):
+
+        res = doChecks()
+        return res
+        return self.body.execute(stack, heap, variables, literals)
+    
     def toString(self, i: int):
         tab: str = ""
         for ind in range(i):
@@ -999,7 +1143,7 @@ class FunctionCallNode(INode):
 
     def ValidateTypes(self) -> MyType:
         program:Program = self.getRoot()
-        func = program.functions.get(self.func)
+        func = program.functions.get(self.func.name)
         if func is None:
             raise Exception(f"Semantic error: there is no function {self.func.name}")
 
@@ -1039,7 +1183,7 @@ class StructNode(INode):
     def __init__(self, parent: INode):
         super().__init__(parent)
         self.Name:str|None = None
-        self.fields = list()
+        self.fields = list[tuple[MyType, VariableTableCell]]()
 
     def buildTree(self, tokens: list[IStringable], index: int, type_table: list[MyType], 
                   vars_table: list[VariableTableCell], literals_table: list[MyLiteral]) -> int:
@@ -1072,6 +1216,45 @@ class StructNode(INode):
 
         return res
 
+def convert(val, fromType: MyType, toType: MyType):
+    return val
+
+def toBytes(val)->bytes:
+    if type(val) == int:
+        return bytes(struct.pack("i", val))
+    elif type(val) == float:
+        return bytes(struct.pack("f", val))
+    elif type(val) == str:
+        if len(val) == 1:
+            return bytes(val.encode())
+        return bytes((val + '\0').encode())
+
+def fromBytes(bts:bytes, typ):
+    if typ == int:
+        return struct.unpack('i', bts)[0]
+    elif typ == float:
+        return struct.unpack("f", bts)[0]
+    elif typ == str:
+        if len(bts) == 1:
+            return bts.decode()
+        return bts.decode()[:-1]
+
+
+def writeValueAtAddr(space:bytearray, addr:int, val, valsize):
+    res = bytearray(toBytes(val))
+    res = res[len(res) - valsize:]
+    i = addr
+    while i - addr < valsize:
+        space[i] = res[i - addr]
+
+def readValueAtAddr(space, addr, valsize):
+    arr = bytearray()
+    for i in range(valsize):
+        arr.append(space[addr+i])
+    
+    return fromBytes(bytes(arr), True)
+
+
 class Program(INode):
     def __init__(
         self,
@@ -1081,59 +1264,97 @@ class Program(INode):
         literals_table: list[MyLiteral],
     ):
         super().__init__(None)
-        self.functions = dict[str, FunctionNode]()
-        self.variables = dict[str, DeclarationNode]()
-        self.parent = None
-        self.structs = dict[str, StructNode]()
+        try:
+            self.functions = dict[str, FunctionNode]()
+            self.variables = dict[str, DeclarationNode]()
+            self.parent = None
+            self.structs = dict[str, StructNode]()
+            self.vars_table = vars_table
+            self.type_table = type_table
+            self.literals_table = literals_table
 
-        i: int = 0
-        while i < len(tokens):
-            if tokens[i] == keywordsDict["#include"]:
-                pass
-            elif tokens[i] in type_table:
-                if tokens[i + 1] not in vars_table:
-                    raise Exception(f"Expected identifier at token {i+1}")
-                name = tokens[i + 1]
-                if tokens[i + 2] == bracketsdict["()"]:
-                    fn = FunctionNode(self)
-                    i = fn.buildTree(tokens, i, type_table, vars_table, literals_table)
-                    self.functions[name] = fn
+            i: int = 0
+            while i < len(tokens):
+                if tokens[i] == keywordsDict["#include"]:
+                    pass
+                elif tokens[i] in type_table:
+                    if tokens[i + 1] not in vars_table:
+                        raise Exception(f"Expected identifier at token {i+1}")
+                    name = tokens[i + 1]
+                    if tokens[i + 2] == bracketsdict["()"]:
+                        fn = FunctionNode(self)
+                        i = fn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                        self.functions[name.name] = fn
+                    else:
+                        dn = DeclarationNode(self)
+                        i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                        self.variables[name] = dn
+                elif tokens[i] is keywordsDict['struct']:
+                    sn = StructNode(self)
+                    i = sn.buildTree(tokens, i, type_table, vars_table, literals_table)
+                    self.structs[sn.Name] = sn
+                    i += 1
+                    if tokens[i] is not separatorsDict[';']:
+                        raise Exception(f"Syntax error at token {i}: ; expected")
                 else:
-                    dn = DeclarationNode(self)
-                    i = dn.buildTree(tokens, i, type_table, vars_table, literals_table)
-                    self.variables[name] = dn
-            elif tokens[i] is keywordsDict['struct']:
-                sn = StructNode(self)
-                i = sn.buildTree(tokens, i, type_table, vars_table, literals_table)
-                self.structs[sn.Name] = sn
+                    raise Exception(
+                        "Error at token i: Only function declarations, global variables and include directives can be in global scope"
+                    )
                 i += 1
-                if tokens[i] is not separatorsDict[';']:
-                    raise Exception(f"Syntax error at token {i}: ; expected")
-            else:
-                raise Exception(
-                    "Error at token i: Only function declarations, global variables and include directives can be in global scope"
-                )
-            i += 1
+        except:
+            pass
 
     def ValidateTypes(self) -> MyType:
-        for f in self.functions.values():
-            f.ValidateTypes()
-        
-        for v in self.variables.values():
-            v.ValidateTypes()
+        try:
+            for f in self.functions.values():
+                f.ValidateTypes()
+
+            for v in self.variables.values():
+                v.ValidateTypes()
+        except:
+            print("'''")
+            
 
     def toString(self, i: int):
-        tab: str = ""
-        for ind in range(i):
-            tab += "    "
-        res = f"Program\n    Global Variables:"
-        for var in self.variables.items():
-            res += f"\n{var[1].toString(2)}"
-        res += f'\n    Structs:'
-        for name, node in self.structs.items():
-            res += f'\n{node.toString(2)}'
-        res += f"\n    Functions:"
-        for f in self.functions.items():
-            res += f"\n{f[1].toString(2)}"
+        try:
+            tab: str = ""
+            for ind in range(i):
+                tab += "    "
+            res = f"Program\n    Global Variables:"
+            for var in self.variables.items():
+                res += f"\n{var[1].toString(2)}"
+            res += f'\n    Structs:'
+            for name, node in self.structs.items():
+                res += f'\n{node.toString(2)}'
+            res += f"\n    Functions:"
+            for f in self.functions.items():
+                res += f"\n{f[1].toString(2)}"
+        except:
+            print('"""')
 
         return res
+    def execute(self):
+        try:
+            print(self.functions)
+            main = self.functions['main']
+            stack = bytearray()
+            heap = bytearray()
+            # [VariableTableCell, addr]
+            variables = list[tuple[VariableTableCell, int]]()
+            literals = list[tuple[MyLiteral, int]]()
+            for l in self.literals_table:
+                addr = len(stack)
+                # stack.append([0 for i in range(l.mytype.size)])
+                res = l.value
+                # writeValueAtAddr(stack, addr, res, l.mytype.size)
+                literals.append((l, addr))
+
+            for gVar in self.variables.values():
+                gVar.execute(stack, heap, variables)
+            
+            print()
+            print(f'\nProgram return code: {main.execute(stack, heap, variables, literals)}')
+        except:
+            doChecks()
+
+

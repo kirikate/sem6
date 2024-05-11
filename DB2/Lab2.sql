@@ -99,7 +99,6 @@ END;
 CREATE OR REPLACE PROCEDURE rollback_students(r_time TIMESTAMP) IS
 BEGIN
     DBMS_OUTPUT.put_line('LOL??');
-    INSERT INTO Table1(Column1) VALUES('LOL');
     execute immediate 'alter trigger students_journal disable';
     FOR action IN (SELECT * FROM student_journal WHERE r_time < op_time ORDER BY id DESC)
     LOOP
@@ -197,7 +196,7 @@ INSERT INTO Students(id, name, group_id) VALUES (1, 'Vassya', 1);
 --проверка каскадного удаления
 delete from groupes where name = '153503';
 SELECT * FROM Students;
-
+SELECT * FROM Groupes;
 --проверка журналирования
 SELECT * FROM student_journal;
 
@@ -205,7 +204,7 @@ SELECT * FROM student_journal;
 --call rollback_students(TO_TIMESTAMP ('23.02.24 14:10:10.123000', 'DD.MM.RRRR HH24:MI:SS.FF'))
 
 --проверка возврата по смещению
-INSERT INTO STUDENTS(name, group_id) VALUES('ИВАН ГОВНОВ', 1);
+INSERT INTO STUDENTS(name, group_id) VALUES('ИВАН ГОВНОВ', 2);
 DBMS_OUTPUT.PUT_LINE('LOLLIX');
 call rollback_students_by_offset(1);
 SELECT * FROM Students;
